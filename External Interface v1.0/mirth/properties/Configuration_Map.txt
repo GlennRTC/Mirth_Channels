@@ -1,0 +1,10 @@
+cases_from_most_recent_episode_only = false
+CDS_Date_Format = dd/MM/yy
+CDS_Datetime_Format = dd/MM/yy HH:mm
+CDS_DB_Password = root
+CDS_DB_URL = jdbc:mysql://localhost:3306/rd_staging?useUnicode=yes&characterEncoding=UTF-8
+CDS_DB_UserName = root
+CDS_Driver_Name = com.mysql.jdbc.Driver
+CDS_Source_Dir = C:/offline_data
+CDS_KB_CODE=TEST
+CDS_URL=http://localhost:9023/rdr/interpreter/query?kbcode=

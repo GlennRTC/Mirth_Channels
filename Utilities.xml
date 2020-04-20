@@ -1,0 +1,211 @@
+<codeTemplate version="3.5.2">
+  <id>7deb66ed-ae5a-4ab6-830a-5fd343bd25ff</id>
+  <name>Utilities</name>
+  <revision>9</revision>
+  <lastModified>
+    <time>1554218776167</time>
+    <timezone>Europe/Paris</timezone>
+  </lastModified>
+  <contextSet>
+    <delegate>
+      <contextType>GLOBAL_DEPLOY</contextType>
+      <contextType>CHANNEL_DEPLOY</contextType>
+      <contextType>SOURCE_FILTER_TRANSFORMER</contextType>
+      <contextType>DESTINATION_RESPONSE_TRANSFORMER</contextType>
+      <contextType>DESTINATION_DISPATCHER</contextType>
+      <contextType>SOURCE_RECEIVER</contextType>
+      <contextType>DESTINATION_FILTER_TRANSFORMER</contextType>
+    </delegate>
+  </contextSet>
+  <properties class="com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties">
+    <type>FUNCTION</type>
+    <code>function Escape_String(str) {
+		// Replace the following...
+		// &apos; - Single quote
+		// &quot; - Double quote
+		// % - Percent
+		// _ - Underscore
+		// ; - Semi colon
+		// No need to replace carriage returns, linefeeds and tabs as the incoming file is tab separated and row terminators
+		// are carriage returns and linefeeds
+		return str ? String(str).replace(/(&apos;|&quot;|\%|\_|\;)/g, &apos;\\$1&apos;) : str;
+		}
+
+function transformTestValue(result) {
+	if (result != null &amp;&amp; result != &apos;&apos;) {
+		if (result.indexOf(&quot;,&quot;) &gt;= 0) {
+			result = result.replace(/,/g, &quot;.&quot;);
+		}
+	}
+	var indexStart = result.indexOf(&quot; *&quot;);
+	if (indexStart &gt;= 1) {
+		result = result.substring(0, indexStart);
+	}
+	return result;
+}
+
+function transformRange(range) {
+	if (range != null &amp;&amp; range != &apos;&apos;) {
+		if (range.indexOf(&quot;,&quot;) &gt;= 0) {
+			range = range.replace(/,/g, &quot;.&quot;);
+		}
+		if (range.indexOf(&apos;&lt;&apos;) == 0) {
+      		var minus = range.indexOf(&apos;-&apos;);
+      		range = range.substring(0, minus);
+    		}
+    		if (range == &apos;0.1-&lt; 1&apos;) {
+      		range = &apos;0.1-1&apos;;
+    		}
+    		if (range == &apos;0.6 - 0.6 - 0.9&apos;) {
+    			range = &apos;0.6 - 0.9&apos;;
+    		}
+    		if (range.indexOf(&apos;Negativo-&apos;) &gt;= 0) {
+      		range = range.replace(&apos;Negativo-&apos;, &apos;&apos;);
+    		}
+		var indexM = range.search(/M[:\.]/);
+		var indexH = range.search(/H[:\.]/);
+		
+		var gender = channelMap.get(&apos;CDS PatientSex&apos;)
+
+		if (indexM &gt;= 0 &amp;&amp; indexH &gt;=0) {
+			if (gender == &apos;F&apos;) {
+				if (indexM &gt; indexH) {
+					range = range.substring(3, indexM-1)
+				} else {
+					range = range.substring(indexH+3, range.length);
+				}
+			} else if (gender == &apos;M&apos;) {
+				if (indexM &gt; indexH) {
+					range = range.substring(indexM+3, range.length);
+				} else {
+					range = range.substring(3, indexH-1)
+				}			
+			}
+		}
+		if (!isValidRange(range)) {
+			logger.error(&quot;Invalid range dropped:  &quot; + range + &quot;.  Data was stored without the range.&quot;);
+			range = &quot;&quot;;
+		}
+	}
+	return range;
+}
+
+function isValidRange(range) {
+	var regex_min_to_max = /([\s|-]{0,1}\d{1,6}(\.\d{1,3}){0,1})\s{0,1}-\s{0,1}(\d{1,6}(\.\d{1,3}){0,1}\s{0,1})/;
+	var regex_less_than_greater_than = /(\s{0,1}[&lt;&gt;]={0,1}\s{0,3}-{0,1}\d{1,2}(\.\d{1,2}){0,1})/;
+	if (regex_min_to_max.test(range) == true) {
+		var matches = [];
+		range.replace(regex_min_to_max, function(match, min, decimal1, max, decimal2) {
+			matches.push({
+				min: min.trim(),
+				max: max.trim()
+			});
+		});
+		for (var i = 0; i &lt; matches.length; i++) {
+			if (parseFloat(matches[i].min) &gt; parseFloat(matches[i].max)) {
+				return false;
+			} else {
+				return true;
+			}
+		}
+	}
+	return regex_less_than_greater_than.test(range);
+}
+
+function encryptString(originalValue) {
+	encryptedValue = originalValue.replace(/0/g, &apos;q&apos;);
+	encryptedValue = encryptedValue.replace(/1/g, &apos;w&apos;);
+	encryptedValue = encryptedValue.replace(/2/g, &apos;e&apos;);
+	encryptedValue = encryptedValue.replace(/3/g, &apos;r&apos;);
+	encryptedValue = encryptedValue.replace(/4/g, &apos;t&apos;);
+	encryptedValue = encryptedValue.replace(/5/g, &apos;y&apos;);
+	encryptedValue = encryptedValue.replace(/6/g, &apos;u&apos;);
+	encryptedValue = encryptedValue.replace(/7/g, &apos;i&apos;);
+	encryptedValue = encryptedValue.replace(/8/g, &apos;o&apos;);
+	encryptedValue = encryptedValue.replace(/9/g, &apos;p&apos;);
+	encryptedValue = encryptedValue.replace(/q/g, &apos;a&apos;);
+	encryptedValue = encryptedValue.replace(/w/g, &apos;s&apos;);
+	encryptedValue = encryptedValue.replace(/e/g, &apos;d&apos;);
+	encryptedValue = encryptedValue.replace(/r/g, &apos;f&apos;);
+	encryptedValue = encryptedValue.replace(/t/g, &apos;g&apos;);
+	encryptedValue = encryptedValue.replace(/y/g, &apos;h&apos;);
+	encryptedValue = encryptedValue.replace(/u/g, &apos;j&apos;);
+	encryptedValue = encryptedValue.replace(/i/g, &apos;k&apos;);
+	encryptedValue = encryptedValue.replace(/o/g, &apos;l&apos;);
+	encryptedValue = encryptedValue.replace(/p/g, &apos;z&apos;);
+	encryptedValue = encryptedValue.replace(/a/g, &apos;x&apos;);
+	encryptedValue = encryptedValue.replace(/s/g, &apos;c&apos;);
+	encryptedValue = encryptedValue.replace(/d/g, &apos;v&apos;);
+	encryptedValue = encryptedValue.replace(/f/g, &apos;b&apos;);
+	encryptedValue = encryptedValue.replace(/g/g, &apos;n&apos;);
+	encryptedValue = encryptedValue.replace(/h/g, &apos;m&apos;);
+	encryptedValue = encryptedValue.replace(/j/g, &apos;9&apos;);
+	encryptedValue = encryptedValue.replace(/k/g, &apos;8&apos;);
+	encryptedValue = encryptedValue.replace(/l/g, &apos;7&apos;);
+	encryptedValue = encryptedValue.replace(/z/g, &apos;6&apos;);
+	encryptedValue = encryptedValue.replace(/x/g, &apos;5&apos;);
+	encryptedValue = encryptedValue.replace(/c/g, &apos;4&apos;);
+	encryptedValue = encryptedValue.replace(/v/g, &apos;3&apos;);
+	encryptedValue = encryptedValue.replace(/b/g, &apos;2&apos;);
+	encryptedValue = encryptedValue.replace(/n/g, &apos;1&apos;);
+	encryptedValue = encryptedValue.replace(/m/g, &apos;0&apos;);
+	encryptedValue = encryptedValue.replace(/0/g, &apos;q&apos;);
+	encryptedValue = encryptedValue.replace(/1/g, &apos;w&apos;);
+	encryptedValue = encryptedValue.replace(/2/g, &apos;e&apos;);
+	encryptedValue = encryptedValue.replace(/3/g, &apos;r&apos;);
+	encryptedValue = encryptedValue.replace(/4/g, &apos;t&apos;);
+	encryptedValue = encryptedValue.replace(/5/g, &apos;y&apos;);
+	encryptedValue = encryptedValue.replace(/6/g, &apos;u&apos;);
+	encryptedValue = encryptedValue.replace(/7/g, &apos;i&apos;);
+	encryptedValue = encryptedValue.replace(/8/g, &apos;o&apos;);
+	encryptedValue = encryptedValue.replace(/9/g, &apos;p&apos;);
+	encryptedValue = encryptedValue.replace(/m/g, &apos;a&apos;);
+	encryptedValue = encryptedValue.replace(/n/g, &apos;s&apos;);
+	encryptedValue = encryptedValue.replace(/b/g, &apos;d&apos;);
+	encryptedValue = encryptedValue.replace(/v/g, &apos;f&apos;);
+	encryptedValue = encryptedValue.replace(/c/g, &apos;g&apos;);
+	encryptedValue = encryptedValue.replace(/x/g, &apos;h&apos;);
+	encryptedValue = encryptedValue.replace(/z/g, &apos;j&apos;);
+	encryptedValue = encryptedValue.replace(/l/g, &apos;k&apos;);
+	encryptedValue = encryptedValue.replace(/k/g, &apos;l&apos;);
+	encryptedValue = encryptedValue.replace(/j/g, &apos;z&apos;);
+	encryptedValue = encryptedValue.replace(/h/g, &apos;x&apos;);
+	encryptedValue = encryptedValue.replace(/g/g, &apos;c&apos;);
+	encryptedValue = encryptedValue.replace(/f/g, &apos;v&apos;);
+	encryptedValue = encryptedValue.replace(/d/g, &apos;b&apos;);
+	encryptedValue = encryptedValue.replace(/s/g, &apos;n&apos;);
+	encryptedValue = encryptedValue.replace(/a/g, &apos;m&apos;);
+	encryptedValue = encryptedValue.replace(/p/g, &apos;9&apos;);
+	encryptedValue = encryptedValue.replace(/o/g, &apos;8&apos;);
+	encryptedValue = encryptedValue.replace(/i/g, &apos;7&apos;);
+	encryptedValue = encryptedValue.replace(/u/g, &apos;6&apos;);
+	encryptedValue = encryptedValue.replace(/y/g, &apos;5&apos;);
+	encryptedValue = encryptedValue.replace(/t/g, &apos;4&apos;);
+	encryptedValue = encryptedValue.replace(/r/g, &apos;3&apos;);
+	encryptedValue = encryptedValue.replace(/e/g, &apos;2&apos;);
+	encryptedValue = encryptedValue.replace(/w/g, &apos;1&apos;);
+	encryptedValue = encryptedValue.replace(/q/g, &apos;0&apos;);
+	return encryptedValue;
+}
+
+function calculate_age_in_years(dateOfBirth) {
+	var today = new Date();
+	var birthDate = new Date(dateOfBirth);
+	var age = today.getFullYear() - birthDate.getFullYear();
+	var m = today.getMonth() - birthDate.getMonth();
+	if (m &lt; 0 || (m === 0 &amp;&amp; today.getDate() &lt; birthDate.getDate())) {
+		age--;
+	}
+	return age;
+}
+
+function buildStringIfNotNull(value) {
+	if (value == null || value == &apos;&apos;) {
+		return null;
+	}
+	return &quot;&apos;&quot; + value + &quot;&apos;&quot;;
+}
+
+</code>
+  </properties>
+</codeTemplate>

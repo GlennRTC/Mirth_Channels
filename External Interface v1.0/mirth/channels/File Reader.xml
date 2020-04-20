@@ -1,0 +1,2562 @@
+<channel version="3.5.1">
+  <id>6df4f01c-e2ee-400b-8f23-547df6db1358</id>
+  <nextMetaDataId>10</nextMetaDataId>
+  <name>File Reader</name>
+  <description>File reader for offline analysis data</description>
+  <revision>3</revision>
+  <sourceConnector version="3.5.1">
+    <metaDataId>0</metaDataId>
+    <name>sourceConnector</name>
+    <properties class="com.mirth.connect.connectors.file.FileReceiverProperties" version="3.5.1">
+      <pluginProperties/>
+      <pollConnectorProperties version="3.5.1">
+        <pollingType>INTERVAL</pollingType>
+        <pollOnStart>true</pollOnStart>
+        <pollingFrequency>300000</pollingFrequency>
+        <pollingHour>0</pollingHour>
+        <pollingMinute>0</pollingMinute>
+        <cronJobs/>
+        <pollConnectorPropertiesAdvanced>
+          <weekly>true</weekly>
+          <inactiveDays>
+            <boolean>false</boolean>
+            <boolean>false</boolean>
+            <boolean>false</boolean>
+            <boolean>false</boolean>
+            <boolean>false</boolean>
+            <boolean>false</boolean>
+            <boolean>false</boolean>
+            <boolean>false</boolean>
+          </inactiveDays>
+          <dayOfMonth>1</dayOfMonth>
+          <allDay>false</allDay>
+          <startingHour>8</startingHour>
+          <startingMinute>0</startingMinute>
+          <endingHour>12</endingHour>
+          <endingMinute>0</endingMinute>
+        </pollConnectorPropertiesAdvanced>
+      </pollConnectorProperties>
+      <sourceConnectorProperties version="3.5.1">
+        <responseVariable>None</responseVariable>
+        <respondAfterProcessing>true</respondAfterProcessing>
+        <processBatch>true</processBatch>
+        <firstResponse>false</firstResponse>
+        <processingThreads>1</processingThreads>
+        <resourceIds class="linked-hash-map">
+          <entry>
+            <string>Default Resource</string>
+            <string>[Default Resource]</string>
+          </entry>
+        </resourceIds>
+        <queueBufferSize>1000</queueBufferSize>
+      </sourceConnectorProperties>
+      <scheme>FILE</scheme>
+      <host>${CDS_Source_Dir}</host>
+      <fileFilter>*</fileFilter>
+      <regex>false</regex>
+      <directoryRecursion>false</directoryRecursion>
+      <ignoreDot>true</ignoreDot>
+      <anonymous>true</anonymous>
+      <username>anonymous</username>
+      <password>anonymous</password>
+      <timeout>10000</timeout>
+      <secure>true</secure>
+      <passive>true</passive>
+      <validateConnection>true</validateConnection>
+      <afterProcessingAction>MOVE</afterProcessingAction>
+      <moveToDirectory>${CDS_Source_Dir}/processed</moveToDirectory>
+      <moveToFileName>${originalFilename}</moveToFileName>
+      <errorReadingAction>MOVE</errorReadingAction>
+      <errorResponseAction>MOVE</errorResponseAction>
+      <errorMoveToDirectory>${CDS_Source_Dir}/error</errorMoveToDirectory>
+      <errorMoveToFileName>${originalFilename}</errorMoveToFileName>
+      <checkFileAge>false</checkFileAge>
+      <fileAge>1000</fileAge>
+      <fileSizeMinimum>0</fileSizeMinimum>
+      <fileSizeMaximum></fileSizeMaximum>
+      <ignoreFileSizeMaximum>true</ignoreFileSizeMaximum>
+      <sortBy>date</sortBy>
+      <binary>false</binary>
+      <charsetEncoding>UTF-8</charsetEncoding>
+    </properties>
+    <transformer version="3.5.1">
+      <elements>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>BIS PatientID</name>
+          <sequenceNumber>0</sequenceNumber>
+          <variable>BIS PatientID</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column1&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientFamilyName</name>
+          <sequenceNumber>1</sequenceNumber>
+          <variable>CDS PatientFamilyName</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column2&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientGivenName</name>
+          <sequenceNumber>2</sequenceNumber>
+          <variable>CDS PatientGivenName</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column3&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientTitle</name>
+          <sequenceNumber>3</sequenceNumber>
+          <variable>CDS PatientTitle</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column4&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+          <name>CDS PatientDOB</name>
+          <sequenceNumber>4</sequenceNumber>
+          <script>var CDS_PatientDOB = msg[&apos;row&apos;][&apos;column5&apos;].toString();
+
+if (CDS_PatientDOB != null &amp;&amp; CDS_PatientDOB != &apos;&apos; &amp;&amp; CDS_PatientDOB != &quot;Deleted&quot;) {
+  CDS_PatientDOB = DateUtil.convertDate($(&apos;CDS_Date_Format&apos;), &quot;yyyy-MM-dd&quot;, CDS_PatientDOB);
+} else if (CDS_PatientDOB == &quot;Deleted&quot;) {
+  CDS_PatientDOB = CDS_PatientDOB;
+} else {
+  CDS_PatientDOB = null;
+}
+
+channelMap.put(&apos;CDS PatientDOB&apos;,CDS_PatientDOB);</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientSex</name>
+          <sequenceNumber>5</sequenceNumber>
+          <variable>CDS PatientSex</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column6&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientStreetAddress</name>
+          <sequenceNumber>6</sequenceNumber>
+          <variable>CDS PatientStreetAddress</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column7&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientCity</name>
+          <sequenceNumber>7</sequenceNumber>
+          <variable>CDS PatientCity</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column8&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientPostalCode</name>
+          <sequenceNumber>8</sequenceNumber>
+          <variable>CDS PatientPostalCode</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column9&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientState</name>
+          <sequenceNumber>9</sequenceNumber>
+          <variable>CDS PatientState</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column10&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientCountry</name>
+          <sequenceNumber>10</sequenceNumber>
+          <variable>CDS PatientCountry</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column11&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientStatus</name>
+          <sequenceNumber>11</sequenceNumber>
+          <variable>CDS PatientStatus</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column12&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientPregnancyFlag</name>
+          <sequenceNumber>12</sequenceNumber>
+          <variable>CDS PatientPregnancyFlag</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column13&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientFastingFlag</name>
+          <sequenceNumber>13</sequenceNumber>
+          <variable>CDS PatientFastingFlag</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column14&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS EpisodeID</name>
+          <sequenceNumber>14</sequenceNumber>
+          <variable>CDS EpisodeID</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column15&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS EpisodeOrderedTests</name>
+          <sequenceNumber>15</sequenceNumber>
+          <variable>CDS EpisodeOrderedTests</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column16&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS EpisodeClinicalNotes</name>
+          <sequenceNumber>16</sequenceNumber>
+          <variable>CDS EpisodeClinicalNotes</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column17&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS AccountType</name>
+          <sequenceNumber>17</sequenceNumber>
+          <variable>CDS AccountType</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column18&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS AccountClass</name>
+          <sequenceNumber>18</sequenceNumber>
+          <variable>CDS AccountClass</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column19&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS BillTo</name>
+          <sequenceNumber>19</sequenceNumber>
+          <variable>CDS BillTo</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column20&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS BillingAddress</name>
+          <sequenceNumber>20</sequenceNumber>
+          <variable>CDS BillingAddress</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column21&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientPublicHealthIdentifier</name>
+          <sequenceNumber>21</sequenceNumber>
+          <variable>CDS PatientPublicHealthIdentifier</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column22&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS EpisodePublicScheduleCode</name>
+          <sequenceNumber>22</sequenceNumber>
+          <variable>CDS EpisodePublicScheduleCode</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column23&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientPrivateHealthFundName</name>
+          <sequenceNumber>23</sequenceNumber>
+          <variable>CDS PatientPrivateHealthFundName</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column24&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PatientPrivateHealthFundID</name>
+          <sequenceNumber>24</sequenceNumber>
+          <variable>CDS PatientPrivateHealthFundID</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column25&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS ReqPhysicianID</name>
+          <sequenceNumber>25</sequenceNumber>
+          <variable>CDS ReqPhysicianID</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column26&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS ReqPhysicianName</name>
+          <sequenceNumber>26</sequenceNumber>
+          <variable>CDS ReqPhysicianName</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column27&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS ReqPhysicianSpeciality</name>
+          <sequenceNumber>27</sequenceNumber>
+          <variable>CDS ReqPhysicianSpeciality</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column28&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS ReqPhysicianDeliveryAddress</name>
+          <sequenceNumber>28</sequenceNumber>
+          <variable>CDS ReqPhysicianDeliveryAddress</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column29&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS SugeryName</name>
+          <sequenceNumber>29</sequenceNumber>
+          <variable>CDS SugeryName</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column30&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS SurgeryCode</name>
+          <sequenceNumber>30</sequenceNumber>
+          <variable>CDS SurgeryCode</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column31&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS SurgeryAddress</name>
+          <sequenceNumber>31</sequenceNumber>
+          <variable>CDS SurgeryAddress</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column32&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS SurgeryPostalCode</name>
+          <sequenceNumber>32</sequenceNumber>
+          <variable>CDS SurgeryPostalCode</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column33&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS CopyPhysicianIDList</name>
+          <sequenceNumber>33</sequenceNumber>
+          <variable>CDS CopyPhysicianIDList</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column34&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS CopyPhysicianNameList</name>
+          <sequenceNumber>34</sequenceNumber>
+          <variable>CDS CopyPhysicianNameList</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column35&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PanelIndicator</name>
+          <sequenceNumber>35</sequenceNumber>
+          <variable>CDS PanelIndicator</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column36&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PanelID</name>
+          <sequenceNumber>36</sequenceNumber>
+          <variable>CDS PanelID</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column37&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS PanelName</name>
+          <sequenceNumber>37</sequenceNumber>
+          <variable>CDS PanelName</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column38&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>BIS SampleID</name>
+          <sequenceNumber>38</sequenceNumber>
+          <variable>BIS SampleID</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column39&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS SampleFluidType</name>
+          <sequenceNumber>39</sequenceNumber>
+          <variable>CDS SampleFluidType</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column40&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>BIS SampleOriginLocation</name>
+          <sequenceNumber>40</sequenceNumber>
+          <variable>BIS SampleOriginLocation</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column41&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS SampleOriginSubLocation</name>
+          <sequenceNumber>41</sequenceNumber>
+          <variable>CDS SampleOriginSubLocation</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column42&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+          <name>CDS SampleCollectionDateTime</name>
+          <sequenceNumber>42</sequenceNumber>
+          <script>var SampleCollectionDateTime = msg[&apos;row&apos;][&apos;column43&apos;].toString();
+
+if (SampleCollectionDateTime != null &amp;&amp; SampleCollectionDateTime != &apos;&apos;) {
+	SampleCollectionDateTime = DateUtil.convertDate($(&apos;CDS_Datetime_Format&apos;), &quot;yyyy-MM-dd HH:mm:ss&quot;, SampleCollectionDateTime);
+}
+channelMap.put(&quot;CDS SampleCollectionDateTime&quot;, SampleCollectionDateTime);</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS SampleCollectionMethod</name>
+          <sequenceNumber>43</sequenceNumber>
+          <variable>CDS SampleCollectionMethod</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column44&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+          <name>BIS TestSiteSampleReceivedDateTime</name>
+          <sequenceNumber>44</sequenceNumber>
+          <script>var TestSiteSampleReceivedDateTime = msg[&apos;row&apos;][&apos;column45&apos;].toString();
+
+if (TestSiteSampleReceivedDateTime != null &amp;&amp; TestSiteSampleReceivedDateTime != &apos;&apos;) {
+    TestSiteSampleReceivedDateTime = DateUtil.convertDate($(&apos;CDS_Datetime_Format&apos;), &quot;yyyy-MM-dd HH:mm:ss&quot;, TestSiteSampleReceivedDateTime);
+}
+channelMap.put(&quot;BIS TestSiteSampleReceivedDateTime&quot;, TestSiteSampleReceivedDateTime);</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>BIS TestLISCode</name>
+          <sequenceNumber>45</sequenceNumber>
+          <variable>BIS TestLISCode</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column46&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>BIS TestLISName</name>
+          <sequenceNumber>46</sequenceNumber>
+          <variable>BIS TestLISName</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column47&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+          <name>CDS TestValue</name>
+          <sequenceNumber>47</sequenceNumber>
+          <script>var CDSTestValue =msg[&apos;row&apos;][&apos;column48&apos;].toString()
+
+channelMap.put(&quot;CDS TestValue&quot;, transformTestValue(CDSTestValue));</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+          <name>CDS TestNormalRange</name>
+          <sequenceNumber>48</sequenceNumber>
+          <script>var CDSTestNormalRange = msg[&apos;row&apos;][&apos;column49&apos;].toString();
+
+channelMap.put(&quot;CDS TestNormalRange&quot;, transformRange(CDSTestNormalRange));</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS TestUnits</name>
+          <sequenceNumber>49</sequenceNumber>
+          <variable>CDS TestUnits</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column50&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>BIS TestPriority</name>
+          <sequenceNumber>50</sequenceNumber>
+          <variable>BIS TestPriority</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column51&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS TestDepartment</name>
+          <sequenceNumber>51</sequenceNumber>
+          <variable>CDS TestDepartment</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column52&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>BIS TestInstrument</name>
+          <sequenceNumber>52</sequenceNumber>
+          <variable>BIS TestInstrument</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column53&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS TestRequestSite</name>
+          <sequenceNumber>53</sequenceNumber>
+          <variable>CDS TestRequestSite</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column54&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>BIS TestSite</name>
+          <sequenceNumber>54</sequenceNumber>
+          <variable>BIS TestSite</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column55&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>BIS TestType</name>
+          <sequenceNumber>55</sequenceNumber>
+          <variable>BIS TestType</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column56&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.mapper.MapperStep>
+          <name>CDS AbnormalFlag</name>
+          <sequenceNumber>56</sequenceNumber>
+          <variable>CDS AbnormalFlag</variable>
+          <mapping>msg[&apos;row&apos;][&apos;column57&apos;].toString()</mapping>
+          <defaultValue></defaultValue>
+          <replacements/>
+          <scope>CHANNEL</scope>
+        </com.mirth.connect.plugins.mapper.MapperStep>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+          <name>BIS TestOrderedDateTime</name>
+          <sequenceNumber>57</sequenceNumber>
+          <script>var TestOrderedDateTime = msg[&apos;row&apos;][&apos;column58&apos;].toString();
+
+if (TestOrderedDateTime &amp;&amp; TestOrderedDateTime != &apos;&apos;) {
+	TestOrderedDateTime= DateUtil.convertDate($(&apos;CDS_Datetime_Format&apos;), &quot;yyyy-MM-dd HH:mm:ss&quot;, TestOrderedDateTime);
+}
+channelMap.put(&quot;BIS TestOrderedDateTime&quot;, TestOrderedDateTime);</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+          <name>BIS TestAnalyzerCompletionDateTime</name>
+          <sequenceNumber>58</sequenceNumber>
+          <script>var TestAnalyzerCompletionDateTime = msg[&apos;row&apos;][&apos;column59&apos;].toString();
+
+if (TestAnalyzerCompletionDateTime != null &amp;&amp; TestAnalyzerCompletionDateTime != &apos;&apos;) {
+    TestAnalyzerCompletionDateTime= DateUtil.convertDate($(&apos;CDS_Datetime_Format&apos;), &quot;yyyy-MM-dd HH:mm:ss&quot;, TestAnalyzerCompletionDateTime);
+}
+
+channelMap.put(&quot;BIS TestAnalyzerCompletionDateTime&quot;, TestAnalyzerCompletionDateTime);</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+          <name>BIS TestResultFirstReviewedDateTime</name>
+          <sequenceNumber>59</sequenceNumber>
+          <script>var TestResultFirstReviewedDateTime= msg[&apos;row&apos;][&apos;column60&apos;].toString();
+
+if (TestResultFirstReviewedDateTime != null &amp;&amp; TestResultFirstReviewedDateTime != &apos;&apos;) {
+    TestResultFirstReviewedDateTime= DateUtil.convertDate($(&apos;CDS_Datetime_Format&apos;), &quot;yyyy-MM-dd HH:mm:ss&quot;, TestResultFirstReviewedDateTime);
+}
+
+channelMap.put(&quot;BIS TestResultFirstReviewedDateTime&quot;, TestResultFirstReviewedDateTime);</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+          <name>BIS TestResultReleasedDateTime</name>
+          <sequenceNumber>60</sequenceNumber>
+          <script>var TestResultReleasedDateTime = msg[&apos;row&apos;][&apos;column61&apos;].toString();
+
+if (TestResultReleasedDateTime != null &amp;&amp; TestResultReleasedDateTime != &apos;&apos;) {
+    TestResultReleasedDateTime = DateUtil.convertDate($(&apos;CDS_Datetime_Format&apos;), &quot;yyyy-MM-dd HH:mm:ss&quot;, TestResultReleasedDateTime);
+}
+
+channelMap.put(&quot;BIS TestResultReleasedDateTime&quot;, TestResultReleasedDateTime);</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+          <name>EpisodeDateTime</name>
+          <sequenceNumber>61</sequenceNumber>
+          <script>var SampleCollectionDateTime = msg[&apos;row&apos;][&apos;column43&apos;].toString();
+
+if (SampleCollectionDateTime != null &amp;&amp; SampleCollectionDateTime != &apos;&apos;) {
+    SampleCollectionDateTime = DateUtil.convertDate($(&apos;CDS_Datetime_Format&apos;), &quot;yyyy-MM-dd HH:mm:ss&quot;, SampleCollectionDateTime);
+}
+
+channelMap.put(&quot;EpisodeDateTime&quot;, SampleCollectionDateTime);</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+          <name>Generate BIS Filename</name>
+          <sequenceNumber>62</sequenceNumber>
+          <script>var batchSequenceId = sourceMap.get(&apos;batchSequenceId&apos;);
+if (batchSequenceId == 1) {
+	globalMap.put(&quot;BISFileName&quot;, &quot;BIS_&quot; + DateUtil.getCurrentDate(&quot;yyyy-MM-dd-hh-mm-ss_&quot;) + sourceMap.get(&quot;batchId&quot;) + &quot;.tsv&quot;);
+}</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+        <com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+          <name>Generate UM Filename</name>
+          <sequenceNumber>63</sequenceNumber>
+          <script>var batchSequenceId = sourceMap.get(&apos;batchSequenceId&apos;);
+if (batchSequenceId == 1) {
+	globalMap.put(&quot;UMFileName&quot;, &quot;UM_&quot; + DateUtil.getCurrentDate(&quot;yyyy-MM-dd-hh-mm-ss_&quot;) + sourceMap.get(&quot;batchId&quot;) + &quot;.tsv&quot;);
+}</script>
+        </com.mirth.connect.plugins.javascriptstep.JavaScriptStep>
+      </elements>
+      <inboundTemplate encoding="base64">MjMzMjM3OAlGRUhXQwlXS0xJSkNQCQkxMy8wOC8xOTYxCU0JODFFIENBS05ZS05TRFAgVEVPSF5e
+Q09XUUFNV15eMjY4MgkJCQkJCQkJMTA2MzE2MDkJTklERE0JCQkJCQkJCQlUSEFLMQlCaiBNbWdh
+cnJzcXFzYiBaaXZuYXFxY2h4CUdQCQkJCQkJCQkwCQkJMTA2MzE2MDkJCQkJMzEvMDUvMjAxMiAx
+MToxMDowMAkJCUhiQTFjCUhiQTFjCTUuNwlORUdBVElWCSUJCQkJT1NCCU9TQgkJCTMxLzA1LzIw
+MTIgMTE6MTA6MDAJCQk=</inboundTemplate>
+      <outboundTemplate encoding="base64"></outboundTemplate>
+      <inboundDataType>DELIMITED</inboundDataType>
+      <outboundDataType>DELIMITED</outboundDataType>
+      <inboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+        <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+          <columnDelimiter>\t</columnDelimiter>
+          <recordDelimiter>\r</recordDelimiter>
+          <quoteToken>&quot;</quoteToken>
+          <escapeWithDoubleQuote>false</escapeWithDoubleQuote>
+          <quoteEscapeToken>\</quoteEscapeToken>
+          <numberedRows>false</numberedRows>
+          <ignoreCR>false</ignoreCR>
+        </serializationProperties>
+        <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+          <columnDelimiter>,</columnDelimiter>
+          <recordDelimiter>\n</recordDelimiter>
+          <quoteToken>&quot;</quoteToken>
+          <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+          <quoteEscapeToken>\</quoteEscapeToken>
+        </deserializationProperties>
+        <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+          <splitType>Record</splitType>
+          <batchSkipRecords>1</batchSkipRecords>
+          <batchMessageDelimiter></batchMessageDelimiter>
+          <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+          <batchGroupingColumn></batchGroupingColumn>
+          <batchScript></batchScript>
+        </batchProperties>
+      </inboundProperties>
+      <outboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+        <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+          <columnDelimiter>,</columnDelimiter>
+          <recordDelimiter>\n</recordDelimiter>
+          <quoteToken>&quot;</quoteToken>
+          <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+          <quoteEscapeToken>\</quoteEscapeToken>
+          <numberedRows>false</numberedRows>
+          <ignoreCR>true</ignoreCR>
+        </serializationProperties>
+        <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+          <columnDelimiter>,</columnDelimiter>
+          <recordDelimiter>\n</recordDelimiter>
+          <quoteToken>&quot;</quoteToken>
+          <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+          <quoteEscapeToken>\</quoteEscapeToken>
+        </deserializationProperties>
+        <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+          <splitType>Record</splitType>
+          <batchSkipRecords>0</batchSkipRecords>
+          <batchMessageDelimiter></batchMessageDelimiter>
+          <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+          <batchGroupingColumn></batchGroupingColumn>
+          <batchScript></batchScript>
+        </batchProperties>
+      </outboundProperties>
+    </transformer>
+    <filter version="3.5.1">
+      <elements/>
+    </filter>
+    <transportName>File Reader</transportName>
+    <mode>SOURCE</mode>
+    <enabled>true</enabled>
+    <waitForPrevious>true</waitForPrevious>
+  </sourceConnector>
+  <destinationConnectors>
+    <connector version="3.5.1">
+      <metaDataId>6</metaDataId>
+      <name>BIS file header</name>
+      <properties class="com.mirth.connect.connectors.file.FileDispatcherProperties" version="3.5.1">
+        <pluginProperties/>
+        <destinationConnectorProperties version="3.5.1">
+          <queueEnabled>false</queueEnabled>
+          <sendFirst>false</sendFirst>
+          <retryIntervalMillis>10000</retryIntervalMillis>
+          <regenerateTemplate>false</regenerateTemplate>
+          <retryCount>0</retryCount>
+          <rotate>false</rotate>
+          <includeFilterTransformer>false</includeFilterTransformer>
+          <threadCount>1</threadCount>
+          <threadAssignmentVariable></threadAssignmentVariable>
+          <validateResponse>false</validateResponse>
+          <resourceIds class="linked-hash-map">
+            <entry>
+              <string>Default Resource</string>
+              <string>[Default Resource]</string>
+            </entry>
+          </resourceIds>
+          <queueBufferSize>1000</queueBufferSize>
+          <reattachAttachments>true</reattachAttachments>
+        </destinationConnectorProperties>
+        <scheme>FILE</scheme>
+        <host>${CDS_Dest_Dir}</host>
+        <outputPattern>${BISFileName}</outputPattern>
+        <anonymous>true</anonymous>
+        <username>anonymous</username>
+        <password>anonymous</password>
+        <timeout>10000</timeout>
+        <secure>true</secure>
+        <passive>true</passive>
+        <validateConnection>true</validateConnection>
+        <outputAppend>false</outputAppend>
+        <errorOnExists>false</errorOnExists>
+        <temporary>false</temporary>
+        <binary>false</binary>
+        <charsetEncoding>UTF-8</charsetEncoding>
+        <template>PatientID	SampleID	SampleOriginLocation	TestPriority	TestOrderedDateTime	TestInstrument	TestLISCode	TestLISName	TestResultFirstReviewedDateTime	TestResultReleasedDateTime	TestSite	TestType	TestAnalyzerCompletionDateTime	TestSiteSampleReceivedDateTime
+</template>
+      </properties>
+      <transformer version="3.5.1">
+        <elements/>
+        <inboundTemplate encoding="base64"></inboundTemplate>
+        <outboundTemplate encoding="base64"></outboundTemplate>
+        <inboundDataType>DELIMITED</inboundDataType>
+        <outboundDataType>DELIMITED</outboundDataType>
+        <inboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </inboundProperties>
+        <outboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </outboundProperties>
+      </transformer>
+      <responseTransformer version="3.5.1">
+        <elements/>
+        <inboundTemplate encoding="base64"></inboundTemplate>
+        <outboundTemplate encoding="base64"></outboundTemplate>
+        <inboundDataType>DELIMITED</inboundDataType>
+        <outboundDataType>DELIMITED</outboundDataType>
+        <inboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </inboundProperties>
+        <outboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </outboundProperties>
+      </responseTransformer>
+      <filter version="3.5.1">
+        <elements>
+          <com.mirth.connect.plugins.javascriptrule.JavaScriptRule>
+            <sequenceNumber>0</sequenceNumber>
+            <script>var batchSequenceId = sourceMap.get(&apos;batchSequenceId&apos;);
+return batchSequenceId == 1;</script>
+          </com.mirth.connect.plugins.javascriptrule.JavaScriptRule>
+        </elements>
+      </filter>
+      <transportName>File Writer</transportName>
+      <mode>DESTINATION</mode>
+      <enabled>false</enabled>
+      <waitForPrevious>true</waitForPrevious>
+    </connector>
+    <connector version="3.5.1">
+      <metaDataId>3</metaDataId>
+      <name>BIS file generation</name>
+      <properties class="com.mirth.connect.connectors.file.FileDispatcherProperties" version="3.5.1">
+        <pluginProperties/>
+        <destinationConnectorProperties version="3.5.1">
+          <queueEnabled>false</queueEnabled>
+          <sendFirst>false</sendFirst>
+          <retryIntervalMillis>10000</retryIntervalMillis>
+          <regenerateTemplate>false</regenerateTemplate>
+          <retryCount>0</retryCount>
+          <rotate>false</rotate>
+          <includeFilterTransformer>false</includeFilterTransformer>
+          <threadCount>1</threadCount>
+          <threadAssignmentVariable></threadAssignmentVariable>
+          <validateResponse>false</validateResponse>
+          <resourceIds class="linked-hash-map">
+            <entry>
+              <string>Default Resource</string>
+              <string>[Default Resource]</string>
+            </entry>
+          </resourceIds>
+          <queueBufferSize>1000</queueBufferSize>
+          <reattachAttachments>true</reattachAttachments>
+        </destinationConnectorProperties>
+        <scheme>FILE</scheme>
+        <host>${CDS_Dest_Dir}</host>
+        <outputPattern>${BISFileName}</outputPattern>
+        <anonymous>true</anonymous>
+        <username>anonymous</username>
+        <password>anonymous</password>
+        <timeout>10000</timeout>
+        <secure>true</secure>
+        <passive>true</passive>
+        <validateConnection>true</validateConnection>
+        <outputAppend>true</outputAppend>
+        <errorOnExists>false</errorOnExists>
+        <temporary>false</temporary>
+        <binary>false</binary>
+        <charsetEncoding>UTF-8</charsetEncoding>
+        <template>${maps.get(&apos;BIS PatientID&apos;)}	${maps.get(&apos;BIS SampleID&apos;)}	${maps.get(&apos;BIS SampleOriginLocation&apos;)}	${maps.get(&apos;BIS TestPriority&apos;)}	${maps.get(&apos;BIS TestOrderedDateTime&apos;)}	${maps.get(&apos;BIS TestInstrument&apos;)}	${maps.get(&apos;BIS TestLISCode&apos;)}	${maps.get(&apos;BIS TestLISName&apos;)}	${maps.get(&apos;BIS TestResultFirstReviewedDateTime&apos;)}	${maps.get(&apos;BIS TestResultReleasedDateTime&apos;)}	${maps.get(&apos;BIS TestSite&apos;)}	${maps.get(&apos;BIS TestType&apos;)}	${maps.get(&apos;BIS TestAnalyzerCompletionDateTime&apos;)}	${maps.get(&apos;BIS TestSiteSampleReceivedDateTime&apos;)}
+</template>
+      </properties>
+      <transformer version="3.5.1">
+        <elements/>
+        <inboundTemplate encoding="base64"></inboundTemplate>
+        <outboundTemplate encoding="base64"></outboundTemplate>
+        <inboundDataType>DELIMITED</inboundDataType>
+        <outboundDataType>DELIMITED</outboundDataType>
+        <inboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>\t</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>false</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </inboundProperties>
+        <outboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </outboundProperties>
+      </transformer>
+      <responseTransformer version="3.5.1">
+        <elements/>
+        <inboundTemplate encoding="base64"></inboundTemplate>
+        <outboundTemplate encoding="base64"></outboundTemplate>
+        <inboundDataType>DELIMITED</inboundDataType>
+        <outboundDataType>DELIMITED</outboundDataType>
+        <inboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </inboundProperties>
+        <outboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </outboundProperties>
+      </responseTransformer>
+      <filter version="3.5.1">
+        <elements/>
+      </filter>
+      <transportName>File Writer</transportName>
+      <mode>DESTINATION</mode>
+      <enabled>false</enabled>
+      <waitForPrevious>true</waitForPrevious>
+    </connector>
+    <connector version="3.5.1">
+      <metaDataId>8</metaDataId>
+      <name>UM file header</name>
+      <properties class="com.mirth.connect.connectors.file.FileDispatcherProperties" version="3.5.1">
+        <pluginProperties/>
+        <destinationConnectorProperties version="3.5.1">
+          <queueEnabled>false</queueEnabled>
+          <sendFirst>false</sendFirst>
+          <retryIntervalMillis>10000</retryIntervalMillis>
+          <regenerateTemplate>false</regenerateTemplate>
+          <retryCount>0</retryCount>
+          <rotate>false</rotate>
+          <includeFilterTransformer>false</includeFilterTransformer>
+          <threadCount>1</threadCount>
+          <threadAssignmentVariable></threadAssignmentVariable>
+          <validateResponse>false</validateResponse>
+          <resourceIds class="linked-hash-map">
+            <entry>
+              <string>Default Resource</string>
+              <string>[Default Resource]</string>
+            </entry>
+          </resourceIds>
+          <queueBufferSize>1000</queueBufferSize>
+          <reattachAttachments>true</reattachAttachments>
+        </destinationConnectorProperties>
+        <scheme>FILE</scheme>
+        <host>${CDS_Dest_Dir}</host>
+        <outputPattern>${UMFileName}</outputPattern>
+        <anonymous>true</anonymous>
+        <username>anonymous</username>
+        <password>anonymous</password>
+        <timeout>10000</timeout>
+        <secure>true</secure>
+        <passive>true</passive>
+        <validateConnection>true</validateConnection>
+        <outputAppend>false</outputAppend>
+        <errorOnExists>false</errorOnExists>
+        <temporary>false</temporary>
+        <binary>false</binary>
+        <charsetEncoding>UTF-8</charsetEncoding>
+        <template>PatientID	PatientDOB	PatientSex	ReqPhysicianID	ReqPhysicianSpeciality	PanelIndcator	TestLISCode	TestSite	AbnormalFlag	TestOrderdDateTime
+</template>
+      </properties>
+      <transformer version="3.5.1">
+        <elements/>
+        <inboundTemplate encoding="base64"></inboundTemplate>
+        <outboundTemplate encoding="base64"></outboundTemplate>
+        <inboundDataType>DELIMITED</inboundDataType>
+        <outboundDataType>DELIMITED</outboundDataType>
+        <inboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </inboundProperties>
+        <outboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </outboundProperties>
+      </transformer>
+      <responseTransformer version="3.5.1">
+        <elements/>
+        <inboundDataType>DELIMITED</inboundDataType>
+        <outboundDataType>DELIMITED</outboundDataType>
+        <inboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </inboundProperties>
+        <outboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </outboundProperties>
+      </responseTransformer>
+      <filter version="3.5.1">
+        <elements>
+          <com.mirth.connect.plugins.javascriptrule.JavaScriptRule>
+            <sequenceNumber>0</sequenceNumber>
+            <script>var batchSequenceId = sourceMap.get(&apos;batchSequenceId&apos;);
+return batchSequenceId == 1;</script>
+          </com.mirth.connect.plugins.javascriptrule.JavaScriptRule>
+        </elements>
+      </filter>
+      <transportName>File Writer</transportName>
+      <mode>DESTINATION</mode>
+      <enabled>false</enabled>
+      <waitForPrevious>false</waitForPrevious>
+    </connector>
+    <connector version="3.5.1">
+      <metaDataId>7</metaDataId>
+      <name>UM file generation</name>
+      <properties class="com.mirth.connect.connectors.file.FileDispatcherProperties" version="3.5.1">
+        <pluginProperties/>
+        <destinationConnectorProperties version="3.5.1">
+          <queueEnabled>false</queueEnabled>
+          <sendFirst>false</sendFirst>
+          <retryIntervalMillis>10000</retryIntervalMillis>
+          <regenerateTemplate>false</regenerateTemplate>
+          <retryCount>0</retryCount>
+          <rotate>false</rotate>
+          <includeFilterTransformer>false</includeFilterTransformer>
+          <threadCount>1</threadCount>
+          <threadAssignmentVariable></threadAssignmentVariable>
+          <validateResponse>false</validateResponse>
+          <resourceIds class="linked-hash-map">
+            <entry>
+              <string>Default Resource</string>
+              <string>[Default Resource]</string>
+            </entry>
+          </resourceIds>
+          <queueBufferSize>1000</queueBufferSize>
+          <reattachAttachments>true</reattachAttachments>
+        </destinationConnectorProperties>
+        <scheme>FILE</scheme>
+        <host>${CDS_Dest_Dir}</host>
+        <outputPattern>${UMFileName}</outputPattern>
+        <anonymous>true</anonymous>
+        <username>anonymous</username>
+        <password>anonymous</password>
+        <timeout>10000</timeout>
+        <secure>true</secure>
+        <passive>true</passive>
+        <validateConnection>true</validateConnection>
+        <outputAppend>true</outputAppend>
+        <errorOnExists>false</errorOnExists>
+        <temporary>false</temporary>
+        <binary>false</binary>
+        <charsetEncoding>UTF-8</charsetEncoding>
+        <template>${maps.get(&apos;BIS PatientID&apos;)}	${maps.get(&apos;CDS PatientDOB&apos;)}	${maps.get(&apos;CDS PatientSex&apos;)}	${maps.get(&apos;CDS ReqPhysicianID&apos;)}	${maps.get(&apos;CDS ReqPhysicianSpeciality&apos;)}	${maps.get(&apos;CDS PanelIndicator&apos;)}	${maps.get(&apos;BIS TestLISCode&apos;)}	${maps.get(&apos;BIS TestSite&apos;)}	${maps.get(&apos;CDS AbnormalFlag&apos;)}	${maps.get(&apos;BIS TestOrderedDateTime&apos;)}
+</template>
+      </properties>
+      <transformer version="3.5.1">
+        <elements/>
+        <inboundTemplate encoding="base64"></inboundTemplate>
+        <outboundTemplate encoding="base64"></outboundTemplate>
+        <inboundDataType>DELIMITED</inboundDataType>
+        <outboundDataType>DELIMITED</outboundDataType>
+        <inboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>\t</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>false</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </inboundProperties>
+        <outboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </outboundProperties>
+      </transformer>
+      <responseTransformer version="3.5.1">
+        <elements/>
+        <inboundTemplate encoding="base64"></inboundTemplate>
+        <outboundTemplate encoding="base64"></outboundTemplate>
+        <inboundDataType>DELIMITED</inboundDataType>
+        <outboundDataType>DELIMITED</outboundDataType>
+        <inboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </inboundProperties>
+        <outboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </outboundProperties>
+      </responseTransformer>
+      <filter version="3.5.1">
+        <elements/>
+      </filter>
+      <transportName>File Writer</transportName>
+      <mode>DESTINATION</mode>
+      <enabled>false</enabled>
+      <waitForPrevious>true</waitForPrevious>
+    </connector>
+    <connector version="3.5.1">
+      <metaDataId>2</metaDataId>
+      <name>Insert into MySQL staging db</name>
+      <properties class="com.mirth.connect.connectors.js.JavaScriptDispatcherProperties" version="3.5.1">
+        <pluginProperties/>
+        <destinationConnectorProperties version="3.5.1">
+          <queueEnabled>false</queueEnabled>
+          <sendFirst>false</sendFirst>
+          <retryIntervalMillis>10000</retryIntervalMillis>
+          <regenerateTemplate>false</regenerateTemplate>
+          <retryCount>0</retryCount>
+          <rotate>false</rotate>
+          <includeFilterTransformer>false</includeFilterTransformer>
+          <threadCount>1</threadCount>
+          <threadAssignmentVariable></threadAssignmentVariable>
+          <validateResponse>false</validateResponse>
+          <resourceIds class="linked-hash-map">
+            <entry>
+              <string>Default Resource</string>
+              <string>[Default Resource]</string>
+            </entry>
+          </resourceIds>
+          <queueBufferSize>1000</queueBufferSize>
+          <reattachAttachments>true</reattachAttachments>
+        </destinationConnectorProperties>
+        <script>//  Declare and Set Variables
+
+//var MESSAGE_ID;
+//var Message_ID = &apos;1&apos;;
+var Processed_YN = &apos;N&apos;;
+var PatientID = Escape_String(channelMap.get(&apos;BIS PatientID&apos;));
+var PatientFamilyName = Escape_String(channelMap.get(&apos;CDS PatientFamilyName&apos;));
+var PatientGivenName = Escape_String(channelMap.get(&apos;CDS PatientGivenName&apos;));
+var PatientTitle = Escape_String(channelMap.get(&apos;CDS PatientTitle&apos;));
+var PatientDOB = Escape_String(channelMap.get(&apos;CDS PatientDOB&apos;));
+var PatientSex = Escape_String(channelMap.get(&apos;CDS PatientSex&apos;));
+var PatientStreetAddress = Escape_String(channelMap.get(&apos;CDS PatientStreetAddress&apos;));
+var PatientCity = Escape_String(channelMap.get(&apos;CDS PatientCity&apos;));
+var PatientPostalCode = Escape_String(channelMap.get(&apos;CDS PatientPostalCode&apos;));
+var PatientState = Escape_String(channelMap.get(&apos;CDS PatientState&apos;));
+var PatientCountry = Escape_String(channelMap.get(&apos;CDS PatientCountry&apos;));
+var PatientStatus = Escape_String(channelMap.get(&apos;CDS PatientStatus&apos;));
+var PatientPregnancyFlag = Escape_String(channelMap.get(&apos;CDS PatientPregnancyFlag&apos;));
+var PatientFastingFlag = Escape_String(channelMap.get(&apos;CDS PatientFastingFlag&apos;));
+var EpisodeID = Escape_String(channelMap.get(&apos;CDS EpisodeID&apos;));
+var EpisodeOrderedTests = Escape_String(channelMap.get(&apos;CDS EpisodeOrderedTests&apos;));
+var EpisodeClinicalNotes = Escape_String(channelMap.get(&apos;CDS EpisodeClinicalNotes&apos;));
+var AccountType = Escape_String(channelMap.get(&apos;CDS AccountType&apos;));
+var AccountClass = Escape_String(channelMap.get(&apos;CDS AccountClass&apos;));
+var BillTo = Escape_String(channelMap.get(&apos;CDS BillTo&apos;));
+var BillingAddress = Escape_String(channelMap.get(&apos;CDS BillingAddress&apos;));
+var PatientPublicHealthIdentifier = Escape_String(channelMap.get(&apos;CDS PatientPublicHealthIdentifier&apos;));
+var EpisodePublicScheduleCode = Escape_String(channelMap.get(&apos;CDS EpisodePublicScheduleCode&apos;));
+var PatientPrivateHealthFundName = Escape_String(channelMap.get(&apos;CDS PatientPrivateHealthFundName&apos;));
+var PatientPrivateHealthFundID = Escape_String(channelMap.get(&apos;CDS PatientPrivateHealthFundID&apos;));
+var ReqPhysicianID = Escape_String(channelMap.get(&apos;CDS ReqPhysicianID&apos;));
+var ReqPhysicianName = Escape_String(channelMap.get(&apos;CDS ReqPhysicianName&apos;));
+var ReqPhysicianSpeciality = Escape_String(channelMap.get(&apos;CDS ReqPhysicianSpeciality&apos;));
+var ReqPhysicianDeliveryAddress = Escape_String(channelMap.get(&apos;CDS ReqPhysicianDeliveryAddress&apos;));
+var SugeryName = Escape_String(channelMap.get(&apos;CDS SugeryName&apos;));
+var SurgeryCode = Escape_String(channelMap.get(&apos;CDS SurgeryCode&apos;));
+var SurgeryAddress = Escape_String(channelMap.get(&apos;CDS SurgeryAddress&apos;));
+var SurgeryPostalCode = Escape_String(channelMap.get(&apos;CDS SurgeryPostalCode&apos;));
+var CopyPhysicianIDList = Escape_String(channelMap.get(&apos;CDS CopyPhysicianIDList&apos;));
+var CopyPhysicianNameList = Escape_String(channelMap.get(&apos;CDS CopyPhysicianNameList&apos;));
+var PanelIndicator = Escape_String(channelMap.get(&apos;CDS PanelIndicator&apos;));
+var PanelID = Escape_String(channelMap.get(&apos;CDS PanelID&apos;));
+var PanelName = Escape_String(channelMap.get(&apos;CDS PanelName&apos;));
+var SampleID = Escape_String(channelMap.get(&apos;BIS SampleID&apos;));
+var SampleFluidType = Escape_String(channelMap.get(&apos;CDS SampleFluidType&apos;));
+var SampleOriginLocation = Escape_String(channelMap.get(&apos;BIS SampleOriginLocation&apos;));
+var SampleOriginSubLocation = Escape_String(channelMap.get(&apos;CDS SampleOriginSubLocation&apos;));
+var SampleCollectionDateTime = Escape_String(channelMap.get(&apos;CDS SampleCollectionDateTime&apos;));
+var SampleCollectionMethod = Escape_String(channelMap.get(&apos;CDS SampleCollectionMethod&apos;));
+var TestSiteSampleReceivedDateTime = Escape_String(channelMap.get(&apos;BIS TestSiteSampleReceivedDateTime&apos;));
+var TestLISCode = Escape_String(channelMap.get(&apos;BIS TestLISCode&apos;));
+var TestLISName = Escape_String(channelMap.get(&apos;BIS TestLISName&apos;));
+var TestValue = Escape_String(channelMap.get(&apos;CDS TestValue&apos;));
+var TestNormalRange = Escape_String(channelMap.get(&apos;CDS TestNormalRange&apos;));
+var TestUnits = Escape_String(channelMap.get(&apos;CDS TestUnits&apos;));
+var TestPriority = Escape_String(channelMap.get(&apos;BIS TestPriority&apos;));
+var TestDepartment = Escape_String(channelMap.get(&apos;CDS TestDepartment&apos;));
+var TestInstrument = Escape_String(channelMap.get(&apos;BIS TestInstrument&apos;));
+var TestRequestSite = Escape_String(channelMap.get(&apos;CDS TestRequestSite&apos;));
+var TestSite = Escape_String(channelMap.get(&apos;BIS TestSite&apos;));
+var TestType = Escape_String(channelMap.get(&apos;BIS TestType&apos;));
+var AbnormalFlag = Escape_String(channelMap.get(&apos;CDS AbnormalFlag&apos;));
+var TestOrderedDateTime = channelMap.get(&apos;BIS TestOrderedDateTime&apos;);
+var TestAnalyzerCompletionDateTime = channelMap.get(&apos;BIS TestAnalyzerCompletionDateTime&apos;);
+var TestResultFirstReviewedDateTime = channelMap.get(&apos;BIS TestResultFirstReviewedDateTime&apos;);
+var TestResultReleasedDateTime = channelMap.get(&apos;BIS TestResultReleasedDateTime&apos;);
+var EpisodeDateTime = channelMap.get(&apos;EpisodeDateTime&apos;);
+// call Mirth template
+
+	var result = Insert_CDS_Data(PatientID,PatientFamilyName,PatientGivenName,PatientTitle,PatientDOB,PatientSex,PatientStreetAddress,PatientCity,PatientPostalCode,PatientState,PatientCountry,PatientStatus,PatientPregnancyFlag,PatientFastingFlag,EpisodeID,EpisodeOrderedTests, EpisodeDateTime, EpisodeClinicalNotes,AccountType,AccountClass,BillTo,BillingAddress,PatientPublicHealthIdentifier,EpisodePublicScheduleCode,PatientPrivateHealthFundName,PatientPrivateHealthFundID,ReqPhysicianID,ReqPhysicianName,ReqPhysicianSpeciality,ReqPhysicianDeliveryAddress,SugeryName,SurgeryCode,SurgeryAddress,SurgeryPostalCode,CopyPhysicianIDList,CopyPhysicianNameList,PanelIndicator,PanelID,PanelName,SampleID,SampleFluidType,SampleOriginLocation,SampleOriginSubLocation,SampleCollectionDateTime,SampleCollectionMethod,TestSiteSampleReceivedDateTime,TestLISCode,TestLISName,TestValue,TestNormalRange,TestUnits,TestPriority,TestDepartment,TestInstrument,TestRequestSite,TestSite,TestType,AbnormalFlag,TestOrderedDateTime,TestAnalyzerCompletionDateTime,TestResultFirstReviewedDateTime,TestResultReleasedDateTime);</script>
+      </properties>
+      <transformer version="3.5.1">
+        <elements/>
+        <inboundTemplate encoding="base64">UGF0aWVudElECVNhbXBsZUlECVNhbXBsZUZsdWlkVHlwZQlTYW1wbGVPcmlnaW5Mb2NhdGlvbglU
+ZXN0TElTQ29kZQlUZXN0TElTTmFtZQlUZXN0UHJpb3JpdHkJVGVzdERlcGFydG1lbnQJVGVzdElu
+c3RydW1lbnQJVGVzdFNpdGUJVGVzdFR5cGUJVGVzdEFuYWx5emVyQ29tcGxldGlvbkRhdGVUaW1l
+CVRlc3RTaXRlU2FtcGxlUmVjZWl2ZWREYXRlVGltZQlUZXN0T3JkZXJlZERhdGVUaW1lCVRlc3RS
+ZXN1bHRGaXJzdFJldmlld2VkRGF0ZVRpbWUJVGVzdFJlc3VsdFJlbGVhc2VkRGF0ZVRpbWU=</inboundTemplate>
+        <outboundTemplate encoding="base64"></outboundTemplate>
+        <inboundDataType>DELIMITED</inboundDataType>
+        <outboundDataType>DELIMITED</outboundDataType>
+        <inboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>\t</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>false</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </inboundProperties>
+        <outboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </outboundProperties>
+      </transformer>
+      <responseTransformer version="3.5.1">
+        <elements/>
+        <inboundDataType>DELIMITED</inboundDataType>
+        <outboundDataType>DELIMITED</outboundDataType>
+        <inboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </inboundProperties>
+        <outboundProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDataTypeProperties" version="3.5.1">
+          <serializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedSerializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+            <numberedRows>false</numberedRows>
+            <ignoreCR>true</ignoreCR>
+          </serializationProperties>
+          <deserializationProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedDeserializationProperties" version="3.5.1">
+            <columnDelimiter>,</columnDelimiter>
+            <recordDelimiter>\n</recordDelimiter>
+            <quoteToken>&quot;</quoteToken>
+            <escapeWithDoubleQuote>true</escapeWithDoubleQuote>
+            <quoteEscapeToken>\</quoteEscapeToken>
+          </deserializationProperties>
+          <batchProperties class="com.mirth.connect.plugins.datatypes.delimited.DelimitedBatchProperties" version="3.5.1">
+            <splitType>Record</splitType>
+            <batchSkipRecords>0</batchSkipRecords>
+            <batchMessageDelimiter></batchMessageDelimiter>
+            <batchMessageDelimiterIncluded>false</batchMessageDelimiterIncluded>
+            <batchGroupingColumn></batchGroupingColumn>
+            <batchScript></batchScript>
+          </batchProperties>
+        </outboundProperties>
+      </responseTransformer>
+      <filter version="3.5.1">
+        <elements/>
+      </filter>
+      <transportName>JavaScript Writer</transportName>
+      <mode>DESTINATION</mode>
+      <enabled>true</enabled>
+      <waitForPrevious>false</waitForPrevious>
+    </connector>
+  </destinationConnectors>
+  <preprocessingScript>// Modify the message variable below to pre process data
+return message;</preprocessingScript>
+  <postprocessingScript>// This script executes once after a message has been processed
+// Responses returned from here will be stored as &quot;Postprocessor&quot; in the response map
+
+return;</postprocessingScript>
+  <deployScript>// This script executes once when the channel is deployed
+// You only have access to the globalMap and globalChannelMap here to persist data
+return;</deployScript>
+  <undeployScript>// This script executes once when the channel is undeployed
+// You only have access to the globalMap and globalChannelMap here to persist data
+return;</undeployScript>
+  <properties version="3.5.1">
+    <clearGlobalChannelMap>true</clearGlobalChannelMap>
+    <messageStorageMode>DISABLED</messageStorageMode>
+    <encryptData>false</encryptData>
+    <removeContentOnCompletion>false</removeContentOnCompletion>
+    <removeOnlyFilteredOnCompletion>false</removeOnlyFilteredOnCompletion>
+    <removeAttachmentsOnCompletion>false</removeAttachmentsOnCompletion>
+    <initialState>STARTED</initialState>
+    <storeAttachments>false</storeAttachments>
+    <metaDataColumns>
+      <metaDataColumn>
+        <name>SOURCE</name>
+        <type>STRING</type>
+        <mappingName>mirth_source</mappingName>
+      </metaDataColumn>
+      <metaDataColumn>
+        <name>TYPE</name>
+        <type>STRING</type>
+        <mappingName>mirth_type</mappingName>
+      </metaDataColumn>
+    </metaDataColumns>
+    <attachmentProperties version="3.5.1">
+      <type>None</type>
+      <properties/>
+    </attachmentProperties>
+    <resourceIds class="linked-hash-map">
+      <entry>
+        <string>Default Resource</string>
+        <string>[Default Resource]</string>
+      </entry>
+    </resourceIds>
+  </properties>
+  <exportData>
+    <metadata>
+      <enabled>true</enabled>
+      <lastModified>
+        <time>1510705554548</time>
+        <timezone>Australia/Sydney</timezone>
+      </lastModified>
+      <pruningSettings>
+        <pruneMetaDataDays>1</pruneMetaDataDays>
+        <pruneContentDays>1</pruneContentDays>
+        <archiveEnabled>false</archiveEnabled>
+      </pruningSettings>
+    </metadata>
+    <codeTemplateLibraries>
+      <codeTemplateLibrary version="3.5.1">
+        <id>be8c75bc-37f7-48dc-a26e-b9e50c6f285a</id>
+        <name>PKS CDS</name>
+        <revision>1</revision>
+        <lastModified>
+          <time>1542588102822</time>
+          <timezone>Australia/Sydney</timezone>
+        </lastModified>
+        <description></description>
+        <includeNewChannels>false</includeNewChannels>
+        <enabledChannelIds>
+          <string>00680d42-b755-42ec-9957-08ae467c47c9</string>
+          <string>838cdb58-cd3d-4797-8dd6-b4121788e3d2</string>
+          <string>6df4f01c-e2ee-400b-8f23-547df6db1358</string>
+          <string>7d58b0b3-0cef-4430-b961-132df6a81f2d</string>
+          <string>e587470e-5f72-4c81-842e-3e1339eb1201</string>
+        </enabledChannelIds>
+        <disabledChannelIds>
+          <string>986eb897-48ee-4c13-a49e-5fe992750df4</string>
+          <string>05c4aca3-6525-46ce-bbe6-f24587a6b797</string>
+          <string>4ad0d0dd-e291-4499-a9d5-dbff3da6a6eb</string>
+          <string>6b208dbe-9531-4997-80d8-7925e426efc3</string>
+        </disabledChannelIds>
+        <codeTemplates>
+          <codeTemplate version="3.5.1">
+            <id>ecf96a6d-b5d6-4c13-b16a-c31a253cb9bb</id>
+            <name>Get_CDS_Connection</name>
+            <revision>1</revision>
+            <lastModified>
+              <time>1531661693178</time>
+              <timezone>Australia/Sydney</timezone>
+            </lastModified>
+            <contextSet>
+              <delegate>
+                <contextType>SOURCE_FILTER_TRANSFORMER</contextType>
+                <contextType>SOURCE_RECEIVER</contextType>
+                <contextType>DESTINATION_RESPONSE_TRANSFORMER</contextType>
+                <contextType>CHANNEL_DEPLOY</contextType>
+                <contextType>DESTINATION_FILTER_TRANSFORMER</contextType>
+                <contextType>DESTINATION_DISPATCHER</contextType>
+              </delegate>
+            </contextSet>
+            <properties class="com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties">
+              <type>FUNCTION</type>
+              <code>/**
+JavaScript function to centralise creation of a database connection. The
+connection won&apos;t be open, the caller still needs to do this but all constants
+will be instantiated here
+
+@return dbConn returns an instance of a returns a new DatabaseConnection object
+*/
+function Get_CDS_Connection() {
+var dbConn = $gc(&apos;dbConn&apos;);
+
+if (!dbConn || dbConn.getConnection().isClosed()) {
+var dbConn = DatabaseConnectionFactory.createDatabaseConnection($(&apos;CDS_Driver_Name&apos;), $(&apos;CDS_DB_URL&apos;), $(&apos;CDS_DB_UserName&apos;), $(&apos;CDS_DB_Password&apos;));
+$gc(&apos;dbConn&apos;, dbConn);
+}
+
+return dbConn;
+}</code>
+            </properties>
+          </codeTemplate>
+          <codeTemplate version="3.5.1">
+            <id>8e116c30-555e-4d03-97c8-0dd649526eda</id>
+            <name>Get_Latest_Episode_For_EpisodeID</name>
+            <revision>1</revision>
+            <lastModified>
+              <time>1531661693138</time>
+              <timezone>Australia/Sydney</timezone>
+            </lastModified>
+            <contextSet>
+              <delegate>
+                <contextType>SOURCE_FILTER_TRANSFORMER</contextType>
+                <contextType>SOURCE_RECEIVER</contextType>
+                <contextType>DESTINATION_RESPONSE_TRANSFORMER</contextType>
+                <contextType>CHANNEL_DEPLOY</contextType>
+                <contextType>DESTINATION_FILTER_TRANSFORMER</contextType>
+                <contextType>DESTINATION_DISPATCHER</contextType>
+              </delegate>
+            </contextSet>
+            <properties class="com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties">
+              <type>FUNCTION</type>
+              <code>
+				function get_latest_episode_for_episodeID(episodeIDList) {
+				  var dbConn = Get_CDS_Connection();
+				  var sql = &quot;SELECT * FROM cds_data WHERE EpisodeID = ? ORDER BY EpisodeDateTime DESC LIMIT 1&quot;;
+				  var latestEpisode = &quot;&quot;;
+				  	try {
+				  		var latestEpisode = dbConn.executeCachedQuery(sql, episodeIDList);
+				  	} catch (exception) {
+				  		logger.error(&quot;Error when inserting data: &quot; + exception);
+				  	} finally {
+				  		dbConn.close();
+				  	}
+				  return latestEpisode;
+				}</code>
+            </properties>
+          </codeTemplate>
+          <codeTemplate version="3.5.1">
+            <id>5c27c0de-56d5-4eb9-bc17-a5ad0805f34a</id>
+            <name>Insert_CDS_Data</name>
+            <revision>1</revision>
+            <lastModified>
+              <time>1531661693065</time>
+              <timezone>Australia/Sydney</timezone>
+            </lastModified>
+            <contextSet>
+              <delegate>
+                <contextType>CHANNEL_PREPROCESSOR</contextType>
+                <contextType>SOURCE_FILTER_TRANSFORMER</contextType>
+                <contextType>GLOBAL_PREPROCESSOR</contextType>
+                <contextType>CHANNEL_DEPLOY</contextType>
+                <contextType>GLOBAL_POSTPROCESSOR</contextType>
+                <contextType>CHANNEL_POSTPROCESSOR</contextType>
+                <contextType>CHANNEL_ATTACHMENT</contextType>
+                <contextType>DESTINATION_FILTER_TRANSFORMER</contextType>
+                <contextType>GLOBAL_DEPLOY</contextType>
+                <contextType>GLOBAL_UNDEPLOY</contextType>
+                <contextType>SOURCE_RECEIVER</contextType>
+                <contextType>DESTINATION_RESPONSE_TRANSFORMER</contextType>
+                <contextType>CHANNEL_BATCH</contextType>
+                <contextType>DESTINATION_DISPATCHER</contextType>
+              </delegate>
+            </contextSet>
+            <properties class="com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties">
+              <type>FUNCTION</type>
+              <code>// Insert CDS data into rd_staging.cds_data from flat file source
+
+function Insert_CDS_Data(PatientID,PatientFamilyName,PatientGivenName,PatientTitle,PatientDOB,PatientSex,PatientStreetAddress,PatientCity,PatientPostalCode,PatientState,PatientCountry,PatientStatus,PatientPregnancyFlag,PatientFastingFlag,EpisodeID,EpisodeOrderedTests, EpisodeDateTime,EpisodeClinicalNotes,AccountType,AccountClass,BillTo,BillingAddress,PatientPublicHealthIdentifier,EpisodePublicScheduleCode,PatientPrivateHealthFundName,PatientPrivateHealthFundID,ReqPhysicianID,ReqPhysicianName,ReqPhysicianSpeciality,ReqPhysicianDeliveryAddress,SugeryName,SurgeryCode,SurgeryAddress,SurgeryPostalCode,CopyPhysicianIDList,CopyPhysicianNameList,PanelIndicator,PanelID,PanelName,SampleID,SampleFluidType,SampleOriginLocation,SampleOriginSubLocation,SampleCollectionDateTime,SampleCollectionMethod,TestSiteSampleReceivedDateTime,TestLISCode,TestLISName,TestValue,TestNormalRange,TestUnits,TestPriority,TestDepartment,TestInstrument,TestRequestSite,TestSite,TestType,AbnormalFlag,TestOrderedDateTime,TestAnalyzerCompletionDateTime,TestResultFirstReviewedDateTime,TestResultReleasedDateTime)
+{
+
+	try {
+		var dbConn = Get_CDS_Connection();
+
+		var _returnValue = 1;
+		var _sqlQuery = &quot;CALL rd_staging.rdInsCDSData (&apos;&quot; + PatientID + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientFamilyName + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientGivenName + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientTitle + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientDOB + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientSex + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientStreetAddress + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientCity + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientPostalCode + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientState + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientCountry + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientStatus + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientPregnancyFlag + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientFastingFlag + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + EpisodeID + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + EpisodeOrderedTests + &quot;&apos;&quot;
+									+ &quot;, &quot; + buildStringIfNotNull(EpisodeDateTime) +&quot;, \
+									&apos;&quot; + EpisodeClinicalNotes + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + AccountType + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + AccountClass + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + BillTo + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + BillingAddress + &quot;&apos;&quot;+&quot;, \
+									&apos;&quot; + PatientPublicHealthIdentifier + &quot;&apos;, \
+									&apos;&quot; + EpisodePublicScheduleCode + &quot;&apos;, \
+									&apos;&quot; + PatientPrivateHealthFundName + &quot;&apos;, \
+									&apos;&quot; + PatientPrivateHealthFundID + &quot;&apos;, \
+									&apos;&quot; + ReqPhysicianID + &quot;&apos;, \
+									&apos;&quot; + ReqPhysicianName + &quot;&apos;, \
+									&apos;&quot; + ReqPhysicianSpeciality + &quot;&apos;, \
+									&apos;&quot; + ReqPhysicianDeliveryAddress + &quot;&apos;, \
+									&apos;&quot; + SugeryName + &quot;&apos;, \
+									&apos;&quot; + SurgeryCode + &quot;&apos;, \
+									&apos;&quot; + SurgeryAddress + &quot;&apos;, \
+									&apos;&quot; + SurgeryPostalCode + &quot;&apos;, \
+									&apos;&quot; + CopyPhysicianIDList + &quot;&apos;, \
+									&apos;&quot; + CopyPhysicianNameList + &quot;&apos;, \
+									&apos;&quot; + PanelIndicator + &quot;&apos;, \
+									&apos;&quot; + PanelID + &quot;&apos;, \
+									&apos;&quot; + PanelName + &quot;&apos;, \
+									&apos;&quot; + SampleID + &quot;&apos;, \
+									&apos;&quot; + SampleFluidType + &quot;&apos;, \
+									&apos;&quot; + SampleOriginLocation + &quot;&apos;, \
+									&apos;&quot; + SampleOriginSubLocation + &quot;&apos;, \
+									&apos;&quot; + SampleCollectionDateTime + &quot;&apos;, \
+									&apos;&quot; + SampleCollectionMethod + &quot;&apos;, \
+									&apos;&quot; + TestSiteSampleReceivedDateTime + &quot;&apos;, \
+									&apos;&quot; + TestLISCode + &quot;&apos;, \
+									&apos;&quot; + TestLISName + &quot;&apos;, \
+									&apos;&quot; + TestValue + &quot;&apos;, \
+									&apos;&quot; + TestNormalRange + &quot;&apos;, \
+									&apos;&quot; + TestUnits + &quot;&apos;, \
+									&apos;&quot; + TestPriority + &quot;&apos;, \
+									&apos;&quot; + TestDepartment + &quot;&apos;, \
+									&apos;&quot; + TestInstrument + &quot;&apos;, \
+									&apos;&quot; + TestRequestSite + &quot;&apos;, \
+									&apos;&quot; + TestSite + &quot;&apos;, \
+									&apos;&quot; + TestType + &quot;&apos;, \
+									&apos;&quot; + AbnormalFlag + &quot;&apos;, \
+									&apos;&quot; + TestOrderedDateTime + &quot;&apos;, \
+									&apos;&quot; + TestAnalyzerCompletionDateTime + &quot;&apos;, \
+									&apos;&quot; + TestResultFirstReviewedDateTime + &quot;&apos;, \
+									&apos;&quot; + TestResultReleasedDateTime + &quot;&apos;)&quot;;
+
+		var _sqlResult = dbConn.executeCachedQuery(_sqlQuery);
+
+		if(_sqlResult.next()) {
+			_returnValue = _sqlResult.getInt(1);
+			_returnValue = parseInt(_returnValue, 10);
+		}
+		return _returnValue;
+	}
+	catch(ex) {
+		logger.error(&quot;PKS - Insert_CDS_Data - Exception: &quot;+ ex);
+		throw ex;
+	}
+	finally {
+	//	dbConn.close();
+	}
+}</code>
+            </properties>
+          </codeTemplate>
+          <codeTemplate version="3.5.1">
+            <id>c86e8913-8152-422e-aa5e-f63f7c25d279</id>
+            <name>Insert_RippleDown_Response</name>
+            <revision>1</revision>
+            <lastModified>
+              <time>1531661693289</time>
+              <timezone>Australia/Sydney</timezone>
+            </lastModified>
+            <contextSet>
+              <delegate>
+                <contextType>SOURCE_FILTER_TRANSFORMER</contextType>
+                <contextType>SOURCE_RECEIVER</contextType>
+                <contextType>DESTINATION_RESPONSE_TRANSFORMER</contextType>
+                <contextType>CHANNEL_DEPLOY</contextType>
+                <contextType>DESTINATION_FILTER_TRANSFORMER</contextType>
+                <contextType>DESTINATION_DISPATCHER</contextType>
+              </delegate>
+            </contextSet>
+            <properties class="com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties">
+              <type>FUNCTION</type>
+              <code>function insert_rippleDown_response(patientID, patientFamilyName, patientGivenName, episodeId, episodeDateTime, testLISCode, testLISName, testValue, processed_YN) {
+				      var params = new java.util.ArrayList();
+			    	  params.add(patientID);
+			    	  params.add(patientFamilyName);
+			    	  params.add(patientGivenName);
+			    	  params.add(episodeDateTime);
+			    	  params.add(episodeId);
+			    	  params.add(testLISCode);
+			    	  params.add(testLISName);
+			    	  params.add(testValue);
+			    	  params.add(processed_YN);
+
+				      var dbConn = Get_CDS_Connection();
+				      var sql = &quot;INSERT INTO cds_data(PatientID, PatientFamilyName, PatientGivenName, EpisodeDateTime, EpisodeID, testLISCode, TestLISName, TestValue, Processed_YN) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)&quot;;
+				      try {
+				        var result = dbConn.executeUpdate(sql, params);
+				      } catch (exception) {
+				        logger.error(&quot;Error when inserting data: &quot; + exception);
+				      } finally {
+				        dbConn.close();
+				      }
+				  }</code>
+            </properties>
+          </codeTemplate>
+          <codeTemplate version="3.5.1">
+            <id>519f869e-22ee-4082-8871-acd8b67e9240</id>
+            <name>Peek_CDS_Data</name>
+            <revision>1</revision>
+            <lastModified>
+              <time>1531661693245</time>
+              <timezone>Australia/Sydney</timezone>
+            </lastModified>
+            <contextSet>
+              <delegate>
+                <contextType>SOURCE_FILTER_TRANSFORMER</contextType>
+                <contextType>SOURCE_RECEIVER</contextType>
+                <contextType>DESTINATION_RESPONSE_TRANSFORMER</contextType>
+                <contextType>CHANNEL_DEPLOY</contextType>
+                <contextType>DESTINATION_FILTER_TRANSFORMER</contextType>
+                <contextType>DESTINATION_DISPATCHER</contextType>
+              </delegate>
+            </contextSet>
+            <properties class="com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties">
+              <type>FUNCTION</type>
+              <code>function Check_Unprocessed_Data() {
+	var dbConn = Get_CDS_Connection();
+	var rowCount = 0;
+
+	var sqlResult = null;
+	try {
+		var returnValue = 1;
+
+		var sqlQuery = &quot;call rd_staging.rdSelCDSCount()&quot;;
+
+		logger.trace(&quot;SQL &quot; + sqlQuery);
+
+		sqlResult = dbConn.executeCachedQuery(sqlQuery);
+		if (sqlResult.next()) {
+			rowCount = sqlResult.getInt(&apos;StatusCode&apos;);
+		}
+	} finally {
+		// Do nothing right now...
+		if  (sqlResult != null) {
+			//sqlResult.close();
+		}
+	}
+	return rowCount;
+}</code>
+            </properties>
+          </codeTemplate>
+          <codeTemplate version="3.5.1">
+            <id>526bcc34-e16b-48cb-98b6-ca763bad259c</id>
+            <name>Records_To_Process</name>
+            <revision>1</revision>
+            <lastModified>
+              <time>1531661693203</time>
+              <timezone>Australia/Sydney</timezone>
+            </lastModified>
+            <contextSet>
+              <delegate>
+                <contextType>SOURCE_FILTER_TRANSFORMER</contextType>
+                <contextType>SOURCE_RECEIVER</contextType>
+                <contextType>DESTINATION_RESPONSE_TRANSFORMER</contextType>
+                <contextType>CHANNEL_DEPLOY</contextType>
+                <contextType>DESTINATION_FILTER_TRANSFORMER</contextType>
+                <contextType>DESTINATION_DISPATCHER</contextType>
+              </delegate>
+            </contextSet>
+            <properties class="com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties">
+              <type>FUNCTION</type>
+              <code>function recordsToProcess() {	
+	if (Check_Unprocessed_Data() &gt; 0) {
+		return true;
+	} else {
+		return false;
+	}
+}</code>
+            </properties>
+          </codeTemplate>
+          <codeTemplate version="3.5.1">
+            <id>0f0fea61-ff2b-470f-9452-4d395117df82</id>
+            <name>Select_CDS_Data</name>
+            <revision>1</revision>
+            <lastModified>
+              <time>1531661693223</time>
+              <timezone>Australia/Sydney</timezone>
+            </lastModified>
+            <contextSet>
+              <delegate>
+                <contextType>SOURCE_FILTER_TRANSFORMER</contextType>
+                <contextType>SOURCE_RECEIVER</contextType>
+                <contextType>DESTINATION_RESPONSE_TRANSFORMER</contextType>
+                <contextType>CHANNEL_DEPLOY</contextType>
+                <contextType>DESTINATION_FILTER_TRANSFORMER</contextType>
+                <contextType>DESTINATION_DISPATCHER</contextType>
+              </delegate>
+            </contextSet>
+            <properties class="com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties">
+              <type>FUNCTION</type>
+              <code>function Select_CDS_Data() {
+	var currEpisodeID = &quot;&quot;;
+	var currEpisode;
+	var currPatientID = &quot;&quot;;
+	var currStatus = &quot;&quot;;
+	var episodes = [];
+	var episodeSize = 0;
+	var resp;
+
+	var dbConn = Get_CDS_Connection();
+	try {
+		var sqlQuery = &quot;call rd_staging.rdSelCDSData()&quot;;
+
+		var sqlResult = dbConn.executeCachedQuery(sqlQuery);
+		// We can assume there will always be at least one row, even if there are no records to process
+		// Let&apos;s check the result set
+		var colCount = sqlResult.getMetaData().getColumnCount();
+		// We&apos;re checking for the column count, if it is 2 then it&apos;s just a return code and message
+
+		if (colCount == 2) {
+			sqlResult.next();
+			logger.trace(&quot;PKS - Select_CDS_Data - Info: &quot; + sqlResult.getString(&quot;Message&quot;));
+			return false;
+		} else {
+			while (sqlResult.next()) {
+				tmpEpisodeID		               = sqlResult.getString(&quot;EpisodeID&quot;);
+				tmpEpisodeOrderedTests             = sqlResult.getString(&quot;EpisodeOrderedTests&quot;);
+				tmpPatientID		               = sqlResult.getString(&quot;PatientID&quot;);
+				tmpPatientSurname	               = sqlResult.getString(&quot;PatientFamilyName&quot;);
+				tmpEpisodeDateTime   	          = sqlResult.getString(&quot;EpisodeDateTime&quot;);
+				tmpPatientDOB		               = sqlResult.getString(&quot;PatientDOB&quot;);
+				tmpTestSite		               = sqlResult.getString(&quot;TestSite&quot;);
+				tmpPatientFamilyName               = sqlResult.getString(&quot;PatientFamilyName&quot;);
+				tmpPatientGivenName                = sqlResult.getString(&quot;PatientGivenName&quot;);
+				tmpPatientTitle                    = sqlResult.getString(&quot;PatientTitle&quot;);
+				tmpPatientSex                      = sqlResult.getString(&quot;PatientSex&quot;);
+				tmpPatientStreetAddress            = sqlResult.getString(&quot;PatientStreetAddress&quot;);
+				tmpPatientCity                     = sqlResult.getString(&quot;PatientCity&quot;);
+				tmpPatientPostalCode               = sqlResult.getString(&quot;PatientPostalCode&quot;);
+				tmpPatientState                    = sqlResult.getString(&quot;PatientState&quot;);
+				tmpPatientCountry                  = sqlResult.getString(&quot;PatientCountry&quot;);
+				tmpPatientStatus                   = sqlResult.getString(&quot;PatientStatus&quot;);
+				tmpPatientPregnancyFlag            = sqlResult.getString(&quot;PatientPregnancyFlag&quot;);
+				tmpPatientFastingFlag              = sqlResult.getString(&quot;PatientFastingFlag&quot;);
+				tmpEpisodeClinicalNotes            = sqlResult.getString(&quot;EpisodeClinicalNotes&quot;);
+				tmpAccountType                     = sqlResult.getString(&quot;AccountType&quot;);
+				tmpAccountClass                    = sqlResult.getString(&quot;AccountClass&quot;);
+				tmpBillTo                          = sqlResult.getString(&quot;BillTo&quot;);
+				tmpBillingAddress                  = sqlResult.getString(&quot;BillingAddress&quot;);
+				tmpPatientPublicHealthIdentifier   = sqlResult.getString(&quot;PatientPublicHealthIdentifier&quot;);
+				tmpEpisodePublicScheduleCode       = sqlResult.getString(&quot;EpisodePublicScheduleCode&quot;);
+				tmpPatientPrivateHealthFundName    = sqlResult.getString(&quot;PatientPrivateHealthFundName&quot;);
+				tmpPatientPrivateHealthFundID      = sqlResult.getString(&quot;PatientPrivateHealthFundID&quot;);
+				tmpReqPhysicianID                  = sqlResult.getString(&quot;ReqPhysicianID&quot;);
+				tmpReqPhysicianName                = sqlResult.getString(&quot;ReqPhysicianName&quot;);
+				tmpReqPhysicianSpeciality          = sqlResult.getString(&quot;ReqPhysicianSpeciality&quot;);
+				tmpReqPhysicianDeliveryAddress     = sqlResult.getString(&quot;ReqPhysicianDeliveryAddress&quot;);
+				tmpSugeryName                      = sqlResult.getString(&quot;SugeryName&quot;);
+				tmpSurgeryCode                     = sqlResult.getString(&quot;SurgeryCode&quot;);
+				tmpSurgeryAddress                  = sqlResult.getString(&quot;SurgeryAddress&quot;);
+				tmpSurgeryPostalCode               = sqlResult.getString(&quot;SurgeryPostalCode&quot;);
+				tmpCopyPhysicianIDList             = sqlResult.getString(&quot;CopyPhysicianIDList&quot;);
+				tmpCopyPhysicianNameList           = sqlResult.getString(&quot;CopyPhysicianNameList&quot;);
+				tmpPanelIndicator                  = sqlResult.getString(&quot;PanelIndicator&quot;);
+				tmpPanelID                         = sqlResult.getString(&quot;PanelID&quot;);
+				tmpPanelName                       = sqlResult.getString(&quot;PanelName&quot;);
+				tmpSampleID                        = sqlResult.getString(&quot;SampleID&quot;);
+				tmpSampleFluidType                 = sqlResult.getString(&quot;SampleFluidType&quot;);
+				tmpSampleOriginLocation            = sqlResult.getString(&quot;SampleOriginLocation&quot;);
+				tmpSampleOriginSubLocation         = sqlResult.getString(&quot;SampleOriginSubLocation&quot;);
+				tmpSampleCollectionDateTime        = sqlResult.getString(&quot;SampleCollectionDateTime&quot;);
+				tmpSampleCollectionMethod          = sqlResult.getString(&quot;SampleCollectionMethod&quot;);
+				tmpTestSiteSampleReceivedDateTime  = sqlResult.getString(&quot;TestSiteSampleReceivedDateTime&quot;);
+				tmpTestPriority                    = sqlResult.getString(&quot;TestPriority&quot;);
+				tmpTestDepartment                  = sqlResult.getString(&quot;TestDepartment&quot;);
+				tmpTestInstrument                  = sqlResult.getString(&quot;TestInstrument&quot;);
+				tmpTestRequestSite                 = sqlResult.getString(&quot;TestRequestSite&quot;);
+				tmpTestSite                        = sqlResult.getString(&quot;TestSite&quot;);
+				tmpTestType                        = sqlResult.getString(&quot;TestType&quot;);
+				tmpAbnormalFlag                    = sqlResult.getString(&quot;AbnormalFlag&quot;);
+				tmpTestOrderedDateTime             = sqlResult.getString(&quot;TestOrderedDateTime&quot;);
+				tmpTestAnalyzerCompletionDateTime  = sqlResult.getString(&quot;TestAnalyzerCompletionDateTime&quot;);
+				tmpTestResultFirstReviewedDateTime = sqlResult.getString(&quot;TestResultFirstReviewedDateTime&quot;);
+				tmpTestResultReleasedDateTime      = sqlResult.getString(&quot;TestResultReleasedDateTime&quot;);
+				tmpEpisodeDate		= DateUtil.getDate(&quot;yyyy-MM-dd HH:mm:ss&quot;, tmpEpisodeDateTime).getTime();
+
+				// Check whether we moved onto a different episode, if we did and it hadn&apos;t already been processed then send a new
+				// case...
+				if ((tmpEpisodeID != currEpisodeID)) {
+					if ($(&apos;cases_from_most_recent_episode_only&apos;) != &apos;true&apos;) {
+						if (currEpisodeID != &quot;&quot;) {
+							if (currStatus == &quot;N&quot;) {
+								var currPatient = {&quot;caseId&quot;: currEpisodeID , site: &quot;&quot;, episodes: []};
+								currPatient.episodes = episodes;
+								// We&apos;re putting the batchSeq into the JSON message, the destination channel can split this out for use later
+								// This is used for updating the records once the records are successfully sent to the web service
+								var currMessage = {&quot;batchSeq&quot;: batchSeq, &quot;episodeID&quot;: currEpisodeID, Patient: currPatient};
+
+								var json = JSON.stringify(currPatient);
+								logger.trace(&quot;JSON Routing to REST CLIENT: &quot; + json);
+								// Send the JSON Object to the Web Service channel
+								resp = router.routeMessage(&quot;Rest Client&quot;, JSON.stringify(currMessage));
+								if (resp) {
+									logger.trace(&quot;Response from REST Channel: &quot; + resp.getMessage());
+								}
+							}
+						}
+					}
+
+					episodeSize = episodes.push({episodeDate: tmpEpisodeDate,
+											episodeId: tmpEpisodeID,
+											attributeWithValues: [{externalName: &quot;PID&quot;, name: &quot;PID&quot;, value: tmpPatientID},
+															{externalName: &quot;BIRTHDATE&quot;, name: &quot;BIRTHDATE&quot;, value: tmpPatientDOB},
+															{externalName: &quot;LASTNAME&quot;, name: &quot;LASTNAME&quot;, value: tmpPatientSurname},
+															{externalName: &quot;EpisodeOrderedTests&quot;, name: &quot;EpisodeOrderedTests&quot;, value: tmpEpisodeOrderedTests},
+															{externalName: &quot;Site&quot;, name: &quot;Site&quot;, value: tmpTestSite},
+															{externalName: &quot;PatientFamilyName&quot;, name : &quot;PatientFamilyName&quot;, value: tmpPatientFamilyName},
+															{externalName: &quot;PatientGivenName&quot;, name : &quot;PatientGivenName&quot;, value: tmpPatientGivenName},
+															{externalName: &quot;PatientTitle&quot;, name : &quot;PatientTitle&quot;, value: tmpPatientTitle},
+															{externalName: &quot;PatientSex&quot;, name : &quot;PatientSex&quot;, value: tmpPatientSex},
+															{externalName: &quot;PatientStreetAddress&quot;, name : &quot;PatientStreetAddress&quot;, value: tmpPatientStreetAddress},
+															{externalName: &quot;PatientCity&quot;, name : &quot;PatientCity&quot;, value: tmpPatientCity},
+															{externalName: &quot;PatientPostalCode&quot;, name : &quot;PatientPostalCode&quot;, value: tmpPatientPostalCode},
+															{externalName: &quot;PatientState&quot;, name : &quot;PatientState&quot;, value: tmpPatientState},
+															{externalName: &quot;PatientCountry&quot;, name : &quot;PatientCountry&quot;, value: tmpPatientCountry},
+															{externalName: &quot;PatientStatus&quot;, name : &quot;PatientStatus&quot;, value: tmpPatientStatus},
+															{externalName: &quot;PatientPregnancyFlag&quot;, name : &quot;PatientPregnancyFlag&quot;, value: tmpPatientPregnancyFlag},
+															{externalName: &quot;PatientFastingFlag&quot;, name : &quot;PatientFastingFlag&quot;, value: tmpPatientFastingFlag}	,
+															{externalName: &quot;PatientGivenName&quot;, name : &quot;externalName&quot;, value: tmpPatientGivenName},
+															{externalName: &quot;EpisodeClinicalNotes&quot;, name: &quot;EpisodeClinicalNotes&quot;, value: tmpEpisodeClinicalNotes},
+															{externalName: &quot;AccountType&quot;, name: &quot;AccountType&quot;, value: tmpAccountType},
+															{externalName: &quot;AccountClass&quot;, name: &quot;AccountClass&quot;, value: tmpAccountClass},
+															{externalName: &quot;BillTo&quot;, name: &quot;BillTo&quot;, value: tmpBillTo},
+															{externalName: &quot;PatientPublicHealthIdentifier&quot;, name: &quot;PatientPublicHealthIdentifier&quot;, value: tmpPatientPublicHealthIdentifier},
+															{externalName: &quot;EpisodePublicScheduleCode&quot;, name: &quot;EpisodePublicScheduleCode&quot;, value: tmpEpisodePublicScheduleCode},
+															{externalName: &quot;PatientPrivateHealthFundName&quot;, name: &quot;PatientPrivateHealthFundName&quot;, value: tmpPatientPrivateHealthFundName},
+															{externalName: &quot;PatientPrivateHealthFundID&quot;, name: &quot;PatientPrivateHealthFundID&quot;, value: tmpPatientPrivateHealthFundID},
+															{externalName: &quot;ReqPhysicianID&quot;, name: &quot;ReqPhysicianID&quot;, value: tmpReqPhysicianID},
+															{externalName: &quot;ReqPhysicianName&quot;, name: &quot;ReqPhysicianName&quot;, value: tmpReqPhysicianName},
+															{externalName: &quot;ReqPhysicianSpeciality&quot;, name: &quot;ReqPhysicianSpeciality&quot;, value: tmpReqPhysicianSpeciality},
+															{externalName: &quot;SugeryName&quot;, name: &quot;SugeryName&quot;, value: tmpSugeryName},
+															{externalName: &quot;SurgeryCode&quot;, name: &quot;SurgeryCode&quot;, value: tmpSurgeryCode},
+															{externalName: &quot;CopyPhysicianIDList&quot;, name: &quot;CopyPhysicianIDList&quot;, value: tmpCopyPhysicianIDList},
+															{externalName: &quot;CopyPhysicianNameList&quot;, name: &quot;CopyPhysicianNameList&quot;, value: tmpCopyPhysicianNameList},
+															{externalName: &quot;PanelIndicator&quot;, name: &quot;PanelIndicator&quot;, value: tmpPanelIndicator},
+															{externalName: &quot;PanelID&quot;, name: &quot;PanelID&quot;, value: tmpPanelID},
+															{externalName: &quot;PanelName&quot;, name: &quot;PanelName&quot;, value: tmpPanelName},
+															{externalName: &quot;SampleID&quot;, name: &quot;SampleID&quot;, value: tmpSampleID},
+															{externalName: &quot;SampleFluidType&quot;, name: &quot;SampleFluidType&quot;, value: tmpSampleFluidType},
+															{externalName: &quot;SampleOriginLocation&quot;, name: &quot;SampleOriginLocation&quot;, value: tmpSampleOriginLocation},
+															{externalName: &quot;SampleOriginSubLocation&quot;, name: &quot;SampleOriginSubLocation&quot;, value: tmpSampleOriginSubLocation},
+															{externalName: &quot;SampleCollectionDateTime&quot;, name: &quot;SampleCollectionDateTime&quot;, value: tmpSampleCollectionDateTime},
+															{externalName: &quot;SampleCollectionMethod&quot;, name: &quot;SampleCollectionMethod&quot;, value: tmpSampleCollectionMethod},
+															{externalName: &quot;TestSiteSampleReceivedDateTime&quot;, name: &quot;TestSiteSampleReceivedDateTime&quot;, value: tmpTestSiteSampleReceivedDateTime},
+															{externalName: &quot;TestPriority&quot;, name: &quot;TestPriority&quot;, value: tmpTestPriority},
+															{externalName: &quot;TestRequestSite&quot;, name: &quot;TestRequestSite&quot;, value: tmpTestRequestSite},
+															{externalName: &quot;TestSite&quot;, name: &quot;TestSite&quot;, value: tmpTestSite},
+															{externalName: &quot;TestType&quot;, name: &quot;TestType&quot;, value: tmpTestType},
+															{externalName: &quot;TestOrderedDateTime&quot;, name: &quot;TestOrderedDateTime&quot;, value: tmpTestOrderedDateTime}]});
+				}
+
+				currEpisodeID		= tmpEpisodeID;
+				currStatus		= sqlResult.getString(&quot;Processed_YN&quot;);
+
+				tmpTestLISCode		= sqlResult.getString(&quot;TestLISCode&quot;);
+				tmpTestLISName		= sqlResult.getString(&quot;TestLISName&quot;);
+				tmpTestValue		= sqlResult.getString(&quot;TestValue&quot;);
+				tmpTestNormalRange	= sqlResult.getString(&quot;TestNormalRange&quot;);
+				tmpTestUnits		= sqlResult.getString(&quot;TestUnits&quot;);
+				// batchSeq is only used when processing the records with a status of &quot;N&quot;
+				// well actually the records will have a status of &quot;P&quot; for processing
+				// but they haven&apos;t already beenprocessed
+				batchSeq					= sqlResult.getInt(&quot;BatchSeq&quot;);
+
+				episodes[episodeSize - 1].attributeWithValues.push({externalName: tmpTestLISCode, name: tmpTestLISName, value: tmpTestValue,
+														units: tmpTestUnits, range: tmpTestNormalRange});
+
+				/* For testing only. The API fails when sending the acxtual tests from the incoming messages*/
+				//episodes[episodeSize - 1].attributeWithValues.push({externalName: &quot;GTT 120m&quot;, name: &quot;GTTP 120min&quot;, value: &quot;6.7&quot;});
+
+				if (tmpPatientID != currPatientID){
+					currPatientID = tmpPatientID;
+				}
+			} //end while
+			if (currStatus == &quot;N&quot;) {
+				var currPatient = {&quot;caseId&quot;: currEpisodeID , site: &quot;&quot;, episodes: []};
+				currPatient.episodes = episodes;
+				var currMessage = {&quot;batchSeq&quot;: batchSeq, &quot;episodeID&quot;: currEpisodeID, Patient: currPatient};
+
+				var json = JSON.stringify(currPatient);
+				// Send the JSON Object to the Web Service
+				logger.trace(&quot;JSON Routing to REST CLIENT: &quot; + json);
+				resp = router.routeMessage(&quot;Rest Client&quot;, JSON.stringify(currMessage));
+				if (resp) {
+					logger.trace(&quot;Response from REST Channel: &quot; + resp.getMessage());
+				}
+			}
+			return true;
+		}
+	}
+	catch(ex) {
+		logger.error(&quot;PKS - Select_CDS_Data - Exception: &quot; + ex);
+		throw ex;
+	}
+	finally {
+	//	dbConn.close();
+	}
+
+}
+</code>
+            </properties>
+          </codeTemplate>
+          <codeTemplate version="3.5.1">
+            <id>6f972e07-5a81-4de6-928c-f0135dd43747</id>
+            <name>Stop_File_Reader</name>
+            <revision>1</revision>
+            <lastModified>
+              <time>1531661693108</time>
+              <timezone>Australia/Sydney</timezone>
+            </lastModified>
+            <contextSet>
+              <delegate>
+                <contextType>SOURCE_FILTER_TRANSFORMER</contextType>
+                <contextType>SOURCE_RECEIVER</contextType>
+                <contextType>DESTINATION_RESPONSE_TRANSFORMER</contextType>
+                <contextType>CHANNEL_DEPLOY</contextType>
+                <contextType>DESTINATION_FILTER_TRANSFORMER</contextType>
+                <contextType>DESTINATION_DISPATCHER</contextType>
+              </delegate>
+            </contextSet>
+            <properties class="com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties">
+              <type>FUNCTION</type>
+              <code>function Change_State(Channel, State) {
+	const threadSleepTime = 10000; // ten seconds
+	const millisecondsPerMinute = 60000;
+	const maxAttempts = ($(&apos;CDS_Max_Wait_Minutes&apos;) * millisecondsPerMinute) / threadSleepTime;
+
+	var attempts = 0;
+	var channelState;
+
+	channelState = ChannelUtil.getChannelState(Channel);
+	if (channelState == State) {
+		logger.debug(&apos;Channel already &apos; + State + &apos; no need to change state.&apos;);
+		return true;
+	} else {
+		// Channel is running, need to check whether there are records to process...
+		if (State == &quot;Started&quot;){
+			logger.info(&apos;Starting Channel: &apos; + Channel);
+			ChannelUtil.startChannel(Channel);
+		} else {
+			logger.info(&apos;Stopping Channel: &apos; + Channel);
+			ChannelUtil.stopChannel(Channel);
+		}
+		channelState = ChannelUtil.getChannelState(Channel);
+		while ((channelState != State) &amp;&amp; (attempts &lt; maxAttempts)) {
+			logger.debug(&quot;Waiting for channel &quot; + Channel);
+			channelState = ChannelUtil.getChannelState(Channel);
+			if (channelState != State) {
+				java.lang.Thread.sleep(threadSleepTime);
+			}
+
+			attempts ++;
+		}
+		logger.debug(&apos;Channel &apos; + Channel + &apos; is &apos; + channelState);
+		if (channelState == State) {
+			logger.debug(&apos;Successfully changed state of &apos; + Channel);
+			return true;
+		} else {
+			return false;
+		}
+	}
+}</code>
+            </properties>
+          </codeTemplate>
+          <codeTemplate version="3.5.1">
+            <id>4c706164-e5b5-4de5-ab21-b0c64c8be231</id>
+            <name>Update_CDS_Status</name>
+            <revision>1</revision>
+            <lastModified>
+              <time>1531661693270</time>
+              <timezone>Australia/Sydney</timezone>
+            </lastModified>
+            <contextSet>
+              <delegate>
+                <contextType>CHANNEL_PREPROCESSOR</contextType>
+                <contextType>SOURCE_FILTER_TRANSFORMER</contextType>
+                <contextType>GLOBAL_PREPROCESSOR</contextType>
+                <contextType>CHANNEL_DEPLOY</contextType>
+                <contextType>GLOBAL_POSTPROCESSOR</contextType>
+                <contextType>CHANNEL_POSTPROCESSOR</contextType>
+                <contextType>CHANNEL_ATTACHMENT</contextType>
+                <contextType>DESTINATION_FILTER_TRANSFORMER</contextType>
+                <contextType>GLOBAL_DEPLOY</contextType>
+                <contextType>GLOBAL_UNDEPLOY</contextType>
+                <contextType>SOURCE_RECEIVER</contextType>
+                <contextType>DESTINATION_RESPONSE_TRANSFORMER</contextType>
+                <contextType>CHANNEL_BATCH</contextType>
+                <contextType>CHANNEL_UNDEPLOY</contextType>
+                <contextType>DESTINATION_DISPATCHER</contextType>
+              </delegate>
+            </contextSet>
+            <properties class="com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties">
+              <type>FUNCTION</type>
+              <code>function Update_CDS_Status(ResponseStatus, currBatchSeq, currEpisodeID) {
+	logger.trace(&quot;Resp Status: &quot; + ResponseStatus);
+
+	var cdsStatus;
+
+    if (ResponseStatus != &quot;SENT&quot;) {
+		cdsStatus = &quot;E&quot;;
+		logger.trace(&quot;Response code from web service call was not SENT, response:&quot; + ResponseStatus);
+		// Call the stored proc setting the status to &quot;E&quot; for the error cases
+		var dbConn = Get_CDS_Connection();
+		try {
+			var returnValue = 1;
+			var sqlQuery = &quot;call rd_staging.rdUpdCDSStatus(&quot; + currBatchSeq + &quot;,&apos;&quot; + currEpisodeID + &quot;&apos;,&apos;&quot; + cdsStatus + &quot;&apos;)&quot;;
+
+			logger.trace(&quot;SQL &quot; + sqlQuery);
+
+			var sqlResult = dbConn.executeCachedQuery(sqlQuery);
+			if (sqlResult.next()) {
+				logger.debug(&quot;PKS - Update_CDS_Status - Info: &quot; + sqlResult.getString(&quot;Message&quot;));
+			}
+		}
+		finally {
+		//	dbConn.close();
+		}
+	}
+}</code>
+            </properties>
+          </codeTemplate>
+          <codeTemplate version="3.5.1">
+            <id>7deb66ed-ae5a-4ab6-830a-5fd343bd25ff</id>
+            <name>Utilities</name>
+            <revision>1</revision>
+            <lastModified>
+              <time>1531661693158</time>
+              <timezone>Australia/Sydney</timezone>
+            </lastModified>
+            <contextSet>
+              <delegate>
+                <contextType>GLOBAL_DEPLOY</contextType>
+                <contextType>SOURCE_FILTER_TRANSFORMER</contextType>
+                <contextType>SOURCE_RECEIVER</contextType>
+                <contextType>DESTINATION_RESPONSE_TRANSFORMER</contextType>
+                <contextType>CHANNEL_DEPLOY</contextType>
+                <contextType>DESTINATION_FILTER_TRANSFORMER</contextType>
+                <contextType>DESTINATION_DISPATCHER</contextType>
+              </delegate>
+            </contextSet>
+            <properties class="com.mirth.connect.model.codetemplates.BasicCodeTemplateProperties">
+              <type>FUNCTION</type>
+              <code>function Escape_String(str) {
+		// Replace the following...
+		// &apos; - Single quote
+		// &quot; - Double quote
+		// % - Percent
+		// _ - Underscore
+		// ; - Semi colon
+		// No need to replace carriage returns, linefeeds and tabs as the incoming file is tab separated and row terminators
+		// are carriage returns and linefeeds
+		return str ? String(str).replace(/(&apos;|&quot;|\%|\_|\;)/g, &apos;\\$1&apos;) : str;
+		}
+
+function transformTestValue(result) {
+	if (result != null &amp;&amp; result != &apos;&apos;) {
+		if (result.indexOf(&quot;,&quot;) &gt;= 0) {
+			result = result.replace(/,/g, &quot;.&quot;);
+		}
+	}
+	return result;
+}
+
+function transformRange(range) {
+	if (range != null &amp;&amp; range != &apos;&apos;) {
+		if (range.indexOf(&quot;,&quot;) &gt;= 0) {
+			range = range.replace(/,/g, &quot;.&quot;);
+		}
+		if (!isValidRange(range)) {
+			logger.error(&quot;Invalid range dropped:  &quot; + range + &quot;.  Data was stored without the range.&quot;);
+			range = &quot;&quot;;
+		}
+	}
+	return range;
+}
+
+function isValidRange(range) {
+	var regex = /([\s|-]{0,1}\d{1,4}(\.\d{1,8}){0,1}\s{0,1}-\s{0,1}\d{1,4}(\.\d{1,8}){0,1}\s{0,1})|(\s{0,1}[&lt;&gt;]={0,1}\s{0,3}-{0,1}\d{1,4}(\.\d{1,8}){0,1})/;
+	return regex.test(range);
+}
+
+function encryptString(originalValue) {
+	encryptedValue = originalValue.replace(/0/g, &apos;q&apos;);
+	encryptedValue = encryptedValue.replace(/1/g, &apos;w&apos;);
+	encryptedValue = encryptedValue.replace(/2/g, &apos;e&apos;);
+	encryptedValue = encryptedValue.replace(/3/g, &apos;r&apos;);
+	encryptedValue = encryptedValue.replace(/4/g, &apos;t&apos;);
+	encryptedValue = encryptedValue.replace(/5/g, &apos;y&apos;);
+	encryptedValue = encryptedValue.replace(/6/g, &apos;u&apos;);
+	encryptedValue = encryptedValue.replace(/7/g, &apos;i&apos;);
+	encryptedValue = encryptedValue.replace(/8/g, &apos;o&apos;);
+	encryptedValue = encryptedValue.replace(/9/g, &apos;p&apos;);
+	encryptedValue = encryptedValue.replace(/q/g, &apos;a&apos;);
+	encryptedValue = encryptedValue.replace(/w/g, &apos;s&apos;);
+	encryptedValue = encryptedValue.replace(/e/g, &apos;d&apos;);
+	encryptedValue = encryptedValue.replace(/r/g, &apos;f&apos;);
+	encryptedValue = encryptedValue.replace(/t/g, &apos;g&apos;);
+	encryptedValue = encryptedValue.replace(/y/g, &apos;h&apos;);
+	encryptedValue = encryptedValue.replace(/u/g, &apos;j&apos;);
+	encryptedValue = encryptedValue.replace(/i/g, &apos;k&apos;);
+	encryptedValue = encryptedValue.replace(/o/g, &apos;l&apos;);
+	encryptedValue = encryptedValue.replace(/p/g, &apos;z&apos;);
+	encryptedValue = encryptedValue.replace(/a/g, &apos;x&apos;);
+	encryptedValue = encryptedValue.replace(/s/g, &apos;c&apos;);
+	encryptedValue = encryptedValue.replace(/d/g, &apos;v&apos;);
+	encryptedValue = encryptedValue.replace(/f/g, &apos;b&apos;);
+	encryptedValue = encryptedValue.replace(/g/g, &apos;n&apos;);
+	encryptedValue = encryptedValue.replace(/h/g, &apos;m&apos;);
+	encryptedValue = encryptedValue.replace(/j/g, &apos;9&apos;);
+	encryptedValue = encryptedValue.replace(/k/g, &apos;8&apos;);
+	encryptedValue = encryptedValue.replace(/l/g, &apos;7&apos;);
+	encryptedValue = encryptedValue.replace(/z/g, &apos;6&apos;);
+	encryptedValue = encryptedValue.replace(/x/g, &apos;5&apos;);
+	encryptedValue = encryptedValue.replace(/c/g, &apos;4&apos;);
+	encryptedValue = encryptedValue.replace(/v/g, &apos;3&apos;);
+	encryptedValue = encryptedValue.replace(/b/g, &apos;2&apos;);
+	encryptedValue = encryptedValue.replace(/n/g, &apos;1&apos;);
+	encryptedValue = encryptedValue.replace(/m/g, &apos;0&apos;);
+	encryptedValue = encryptedValue.replace(/0/g, &apos;q&apos;);
+	encryptedValue = encryptedValue.replace(/1/g, &apos;w&apos;);
+	encryptedValue = encryptedValue.replace(/2/g, &apos;e&apos;);
+	encryptedValue = encryptedValue.replace(/3/g, &apos;r&apos;);
+	encryptedValue = encryptedValue.replace(/4/g, &apos;t&apos;);
+	encryptedValue = encryptedValue.replace(/5/g, &apos;y&apos;);
+	encryptedValue = encryptedValue.replace(/6/g, &apos;u&apos;);
+	encryptedValue = encryptedValue.replace(/7/g, &apos;i&apos;);
+	encryptedValue = encryptedValue.replace(/8/g, &apos;o&apos;);
+	encryptedValue = encryptedValue.replace(/9/g, &apos;p&apos;);
+	encryptedValue = encryptedValue.replace(/m/g, &apos;a&apos;);
+	encryptedValue = encryptedValue.replace(/n/g, &apos;s&apos;);
+	encryptedValue = encryptedValue.replace(/b/g, &apos;d&apos;);
+	encryptedValue = encryptedValue.replace(/v/g, &apos;f&apos;);
+	encryptedValue = encryptedValue.replace(/c/g, &apos;g&apos;);
+	encryptedValue = encryptedValue.replace(/x/g, &apos;h&apos;);
+	encryptedValue = encryptedValue.replace(/z/g, &apos;j&apos;);
+	encryptedValue = encryptedValue.replace(/l/g, &apos;k&apos;);
+	encryptedValue = encryptedValue.replace(/k/g, &apos;l&apos;);
+	encryptedValue = encryptedValue.replace(/j/g, &apos;z&apos;);
+	encryptedValue = encryptedValue.replace(/h/g, &apos;x&apos;);
+	encryptedValue = encryptedValue.replace(/g/g, &apos;c&apos;);
+	encryptedValue = encryptedValue.replace(/f/g, &apos;v&apos;);
+	encryptedValue = encryptedValue.replace(/d/g, &apos;b&apos;);
+	encryptedValue = encryptedValue.replace(/s/g, &apos;n&apos;);
+	encryptedValue = encryptedValue.replace(/a/g, &apos;m&apos;);
+	encryptedValue = encryptedValue.replace(/p/g, &apos;9&apos;);
+	encryptedValue = encryptedValue.replace(/o/g, &apos;8&apos;);
+	encryptedValue = encryptedValue.replace(/i/g, &apos;7&apos;);
+	encryptedValue = encryptedValue.replace(/u/g, &apos;6&apos;);
+	encryptedValue = encryptedValue.replace(/y/g, &apos;5&apos;);
+	encryptedValue = encryptedValue.replace(/t/g, &apos;4&apos;);
+	encryptedValue = encryptedValue.replace(/r/g, &apos;3&apos;);
+	encryptedValue = encryptedValue.replace(/e/g, &apos;2&apos;);
+	encryptedValue = encryptedValue.replace(/w/g, &apos;1&apos;);
+	encryptedValue = encryptedValue.replace(/q/g, &apos;0&apos;);
+	return encryptedValue;
+}
+
+function calculate_age_in_years(dateOfBirth) {
+	var today = new Date();
+	var birthDate = new Date(dateOfBirth);
+	var age = today.getFullYear() - birthDate.getFullYear();
+	var m = today.getMonth() - birthDate.getMonth();
+	if (m &lt; 0 || (m === 0 &amp;&amp; today.getDate() &lt; birthDate.getDate())) {
+		age--;
+	}
+	return age;
+}
+
+function buildStringIfNotNull(value) {
+	if (value == null || value == &apos;&apos;) {
+		return null;
+	}
+	return &quot;&apos;&quot; + value + &quot;&apos;&quot;;
+}
+
+</code>
+            </properties>
+          </codeTemplate>
+        </codeTemplates>
+      </codeTemplateLibrary>
+    </codeTemplateLibraries>
+    <dependentIds>
+      <string>00680d42-b755-42ec-9957-08ae467c47c9</string>
+    </dependentIds>
+  </exportData>
+</channel>
